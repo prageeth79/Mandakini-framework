@@ -17,11 +17,23 @@ supportive components.
 </ul>
 support of crateing an instant <span style="color:red; font-weight:bold;">data table</span> that has <span style="color:red; font-weight:bold;">view</span>, <span style="color:red; font-weight:bold;">edit</span> and <span style="color:red; font-weight:bold;">delete</span> buttons.
 
+
+
 support of discovring mysql database fields automatically
 
 no need to write select, update Insert SQL statements. they are handled in the model automatically.
 
 
 data is directly feed on to the model after submit no need to add them manually
+
+ability to support athanticate the app using secure logings
+
+ability to support userlevel access and disallow unwanted user form access
+
+support bootstrap framework
+
+support validation of your data fieldes
+
+
 
 
