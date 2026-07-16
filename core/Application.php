@@ -43,12 +43,13 @@ class Application {
             error_reporting(0);
             ini_set('display_errors', '0');
         }
-                    // Debug: log session and primary user value to runtime for troubleshooting
-            $logPath = self::$ROOT_DIR . '/runtime/session_debug.log';
+        // Debug: log session and primary user value to runtime for troubleshooting
+        $logPath = self::$ROOT_DIR . '/runtime/session_debug.log';
+        if ($this->debug) {
             $log = "[" . date('Y-m-d H:i:s') . "] constructor: primaryValue=" . var_export($primaryValue, true) . "\n";
             $log .= "SESSION=" . var_export($_SESSION, true) . "\n\n";
             @file_put_contents($logPath, $log, FILE_APPEND);
- 
+        }
         if ($primaryValue) {
             $primaryKey = $this->userClass::primaryKey();
             $this->user = $this->userClass::findOne([$primaryKey => $primaryValue]);
