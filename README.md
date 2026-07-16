@@ -15,7 +15,7 @@ supportive components.
 <li>Hidden Filed</li>
 <li>Other</li>
 </ul>
-support of crateing an instant <span style="color:red; font-weight:bold;">data table</span> that has <span style="color:red; font-weight:bold;">view</span>, <span style="color:red; font-weight:bold;">edit</span> and <span style="color:red; font-weight:bold;">delete</span> buttons.
+support of crateing an instant <font color="red">data table</font> that has <font color="red">view</font>, <font color="red">edit</font> and <font color="red">delete</font> buttons.
 
 
 
