@@ -14,7 +14,7 @@ supportive components.
 <li>Number Field</li>
 <li>Hidden Filed</li>
 <li>Other</li>
-<ul>
+</ul>
 support of crateing an instant <b>data table</b> that has <b>view</b>, <b>edit</b> and <b>delete</b> buttons.
 
 support of discovring mysql database fields automatically
