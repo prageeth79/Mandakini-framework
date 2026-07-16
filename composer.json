@@ -1,0 +1,17 @@
+{
+    "name": "niranjan/mandakini3",
+    "authors": [
+        {
+            "name": "B.D.P. Niranjan",
+            "email": "prageeth79@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "app\\" : "./"
+        }
+    },
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}

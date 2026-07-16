@@ -1,0 +1,13 @@
+# Rewrite requests for /public/... to the public front controller
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # If the request points to an existing file or directory, serve it directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Internally rewrite /public/... to /public/index.php so PHP app handles it
+    RewriteRule ^public(?:/(.*))?$ /public/index.php [L,QSA]
+</IfModule>
