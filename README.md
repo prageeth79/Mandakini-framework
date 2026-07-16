@@ -19,6 +19,9 @@ support of crateing an instant <span style="color:red;font-waight:bold"> data ta
 
 support of discovring mysql database fields automatically
 
-no need to write select, update Insert SQL statements. they are handled in the model automatically
+no need to write select, update Insert SQL statements. they are handled in the model automatically.
+
+
+data is directly feed on to the model after submit no need to add them manually
 
 
