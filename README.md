@@ -15,7 +15,7 @@ supportive components.
 <li>Hidden Filed</li>
 <li>Other</li>
 </ul>
-support of crateing an instant <b style="color:red"> data table</b> that has <b style="color:red">view</b>, <b style="color:red">edit</b> and <b style="color:red">delete</b> buttons.
+support of crateing an instant <span style="color:red;font-waight:bold"> data table</span> that has <span style="color:red;font-waight:bold">view</span>, <span style="color:red;font-waight:bold">edit</span> and <span style="color:red;font-waight:bold">delete</span> buttons.
 
 support of discovring mysql database fields automatically
 
