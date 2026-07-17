@@ -7,6 +7,8 @@ use app\core\Application;
 use app\controllers\SiteController;
 use app\controllers\AuthController;
 use app\controllers\ItdlhController;
+
+/*
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->load();
 
@@ -20,7 +22,7 @@ $config = [
         'password' => $_ENV['DB_PASSWORD'] ?? ''
     ]
 ];
-
+*/
 include_once __DIR__ . '/config.php';
 
 
@@ -42,10 +44,11 @@ $app->router->post('/register', [AuthController::class, 'register']);
 $app->router->get('/logout', [AuthController::class, 'logout']);
 $app->router->get('/profile', [AuthController::class, 'profile']);
 
+/*
 $app->router->get('/debug-session', [\app\controllers\DebugController::class, 'session']);
 // Debug helper to view DB tables
 $app->router->get('/debug/tables', [\app\controllers\DebugController::class, 'tables']);
-
+*/
 // ITDLH landing page (controller)
 $app->router->get('/itdlh', [ItdlhController::class, 'index']);
 
