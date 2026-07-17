@@ -29,7 +29,9 @@ support of discovring mysql database fields automatically
 <li>
 no need to write select, update Insert SQL statements. they are handled in the model automatically.
 </li>
-
+<li>
+select, update, delete, save functions are build and corded no need to write them they are radymade to use and save data.
+</li>
 
 <li>
 data is directly feed on to the model after submit no need to add them manually
@@ -50,6 +52,7 @@ support bootstrap framework
 <li>
 support validation of your data fieldes
 </li>
+
 </ul>
 
 sample project login
