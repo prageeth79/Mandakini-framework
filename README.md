@@ -52,7 +52,7 @@ support bootstrap framework
 <li>
 support validation of your data fieldes
 </li>
-
+<li>extended support to Mysql Database</li>
 </ul>
 
 sample project login
@@ -60,4 +60,13 @@ sample project login
 <li>admin : admin123</li>
 <li>instructor : instructor123</li>
 <li>student : student123</li>
+</ul>
+
+<p>changes done 17/07/2026</p>
+<ul>
+<li>
+added database extended support to postgressSQL
+</li>
+<li>added database extended support to MS Sql Server</li>
+<li>added database extended support to Oracle</li>
 </ul>
