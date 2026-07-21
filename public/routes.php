@@ -1,5 +1,9 @@
 <?php
 
+use app\controllers\SiteController;
+use app\controllers\AuthController;
+use app\controllers\ItdlhController;
+
 $app->router->get('/', [SiteController::class, 'home']);
 $app->router->get('/home', [SiteController::class, 'home']);
 $app->router->get('/contact', [SiteController::class, 'contact']);

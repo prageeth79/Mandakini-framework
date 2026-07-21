@@ -29,7 +29,7 @@ class Router {
         $callback = $this->routes[$method][$path] ?? false;
         // Check if the route exists $callback can be used instead of $this->routes[$method][$path]
         // if (!$callback === false) {
-        if (!$callback=== false) { 
+        if ($callback !== false) { 
             if(is_string($callback)) {
                 return $this->renderView($callback);
             }else {
