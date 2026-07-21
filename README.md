@@ -87,3 +87,4 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - Added Oracle support
 - 21/07/2026
   - Moved routes out of `index.php` into `public/routes.php` for cleaner structure
+  - usermanual is written it will be available soon
