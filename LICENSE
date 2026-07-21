@@ -1,19 +1,32 @@
-MIT License
+Mandakini Framework License
 
 Copyright (c) 2026 B.D.P. Niranjan
-Email:- prageeth79@gmail.com
-site: - https://github.com/prageeth79/Mandakini-framework
-Author: - B.D.P. Niranjan
+Email: prageeth79@gmail.com
+Site: https://github.com/prageeth79/Mandakini-framework
+Author: B.D.P. Niranjan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Attribution is required. Any use, distribution, modification, public
+   deployment, or commercial use of the Software must include visible
+   attribution with the text:
+   Powered by Mandakini Framework
+   and a link to:
+   https://github.com/prageeth79/Mandakini-framework
+
+2. If the Software is used in a web application, the attribution must be shown
+   in a visible area such as a footer, about page, or landing page. The
+   attribution may be formatted as a link, for example:
+   Powered by Mandakini Framework - https://github.com/prageeth79/Mandakini-framework
+
+3. The above copyright notice, this license, and the required attribution must
+   be included in all copies or substantial portions of the Software.
+
+4. This license does not grant any trademark rights. “Mandakini Framework” and
+   any related logos or branding remain the property of the copyright holder.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
