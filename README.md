@@ -70,3 +70,8 @@ added database extended support to postgressSQL
 <li>added database extended support to MS Sql Server</li>
 <li>added database extended support to Oracle</li>
 </ul>
+
+<p>changes done 21/07/2026</p>
+<ul>
+<li>routers are seperated from the index so changing of routers will not accidently remove importent content. </li>
+<ul>
