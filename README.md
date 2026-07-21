@@ -1,77 +1,89 @@
-# Mandakini-framework
-Mandakini Framework is a framework design in PHP, it is a simple easy to use framework that will enable you to develop softwares easirly with php it has added support to mysql and easily can develop php - mysql web application quickly.
+# Mandakini Framework
 
-supportive components.
-<ul>
-<li>Text Field</li>
-<li>Combo box</li>
-<li>Text Area</li>
-<li>check box</li>
-<li>Data Time</li>
-<li>File Upload</li>
-<li>Password Field</li>
-<li>Email Field</li>
-<li>Number Field</li>
-<li>Hidden Filed</li>
-<li>Other</li>
-</ul>
+Mandakini Framework is a beginner-friendly PHP web framework designed for fast development of database-driven applications. It offers form helpers, validation, authentication, and automatic database model handling so you can build apps quickly.
 
-supported acctions
-<ul>
-<li>
-support of crateing an instant <font color="red">data table</font> that has <font color="red">view</font>, <font color="red">edit</font> and <font color="red">delete</font> buttons.
-</li>
+## Key features
 
-<li>
-support of discovring mysql database fields automatically
-</li>
+- Easy PHP MVC-style structure
+- Automatic database model support
+- Built-in form rendering helpers
+- Validation rules for form data
+- Login and session management
+- Role-based access control support
+- Support for MySQL, PostgreSQL, SQL Server, and Oracle
+- Simple routing and view handling
 
-<li>
-no need to write select, update Insert SQL statements. they are handled in the model automatically.
-</li>
-<li>
-select, update, delete, save functions are build and corded no need to write them they are radymade to use and save data.
-</li>
+## Supported form fields
 
-<li>
-data is directly feed on to the model after submit no need to add them manually
-</li>
+- Text input
+- Password input
+- Email input
+- Number input
+- Hidden input
+- Textarea
+- Select / dropdown
+- Checkbox
+- Radio buttons
+- File upload
+- Date and time fields
 
-<li>
-ability to support athanticate the app using secure logings
-</li>
+## Supported operations
 
-<li>
-ability to support userlevel access and disallow unwanted user form access
-</li>
+- Automatic CRUD operations using models
+- Auto-discovery of database table metadata for supported database engines
+- `save()`, `update()`, `delete()`, `findOne()` and `findAll()` on models
+- Built-in validation and error reporting
+- File upload validation
+- User authentication and session handling
+- Route-based controller action mapping
 
-<li>
-support bootstrap framework
-</li>
+## Sample login accounts
 
-<li>
-support validation of your data fieldes
-</li>
-<li>extended support to Mysql Database</li>
-</ul>
+- `admin` : `admin123`
+- `instructor` : `instructor123`
+- `student` : `student123`
 
-sample project login
-<ul>
-<li>admin : admin123</li>
-<li>instructor : instructor123</li>
-<li>student : student123</li>
-</ul>
+## Installation
 
-<p>changes done 17/07/2026</p>
-<ul>
-<li>
-added database extended support to postgressSQL
-</li>
-<li>added database extended support to MS Sql Server</li>
-<li>added database extended support to Oracle</li>
-</ul>
+1. Clone or download the repository.
+2. Install Composer dependencies:
+   ```bash
+   composer install
+   ```
+3. Configure your database in `public/config.php`.
+4. Set your web server document root to the `public/` folder.
+5. Open the app in your browser.
 
-<p>changes done 21/07/2026</p>
-<ul>
-<li>routers are seperated from the index so changing of routers will not accidently remove importent content. </li>
-<ul>
+## Database support
+
+Mandakini supports multiple database engines through engine-specific model classes:
+
+- `app\core\db\MySqlDBModel`
+- `app\core\db\PostgresDBModel`
+- `app\core\db\MSSQLServerDBModel`
+- `app\core\db\OracleDBModel`
+
+These subclasses automatically detect table columns and primary keys when possible.
+
+## Project structure
+
+- `public/` – application entry point, routes, and configuration
+- `core/` – framework internals
+- `controllers/` – request handlers and page logic
+- `models/` – data models and validation
+- `views/` – HTML templates and layout files
+- `migrations/` – database migration scripts
+- `vendor/` – Composer dependencies
+
+## User manual
+
+A full user manual is available in `USERMANUAL.md` with setup instructions, examples, and detailed guidance for beginners.
+
+## Change log
+
+- 17/07/2026
+  - Added PostgreSQL support
+  - Added SQL Server support
+  - Added Oracle support
+- 21/07/2026
+  - Moved routes out of `index.php` into `public/routes.php` for cleaner structure
