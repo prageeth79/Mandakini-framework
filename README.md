@@ -12,6 +12,7 @@ Mandakini Framework is a beginner-friendly PHP web framework designed for fast d
 - Role-based access control support
 - Support for MySQL, PostgreSQL, SQL Server, and Oracle
 - Simple routing and view handling
+ - Render paginated HTML tables directly from `DBModel` using the `app\core\form\DBTable` helper
 
 ## Supported form fields
 
