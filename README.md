@@ -51,7 +51,7 @@ Mandakini Framework is a beginner-friendly PHP web framework designed for fast d
    composer install
    ```
 3. Configure your database in `public/config.php`.
-4. Set your web server document root to the `public/` folder.
+4. Set your web server document root to the main folder which contains `public/` folder.
 5. Open the app in your browser.
 
 ## Database support
