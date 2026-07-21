@@ -371,7 +371,7 @@
   <footer class="py-5 text-center bg-dark text-white border-top">
     <div class="container">
       <p class="mb-2 text-white-50">Institute of Technology & Digital Learning Hub (ITDLH) — Kelaniya</p>
-      <small class="text-secondary">&copy; <?php echo date('Y'); ?> All Rights Reserved. Powered by Open-Source Technology.</small>
+      <small class="text-secondary">&copy; <?php echo date('Y'); ?> B.D.P. Niranjan. All Rights Reserved. Powered by <a href="https://github.com/prageeth79/Mandakini-framework" target="_blank" class="text-white text-decoration-none">Mandakini Framework</a></small>
     </div>
   </footer>
 
