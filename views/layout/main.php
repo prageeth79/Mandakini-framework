@@ -94,7 +94,7 @@
     <div class="container text-center">
       <p class="mb-1">&copy; <?php echo date('Y'); ?> ITDLH Kelaniya</p>
       <p class="small mb-0">Address:ITDLH Kelaniya, Makola North, Sri Lanka &nbsp; | &nbsp; Email: itdlhkelaniya@gmail.com</p>
-      <p class="small mb-0">powered by <a href="#" target="_blank" class="text-white">Mandakini Framework</a></p>
+      <p class="small mb-0">powered by <a href="https://github.com/prageeth79/Mandakini-framework" target="_blank" class="text-white">Mandakini Framework</a></p>
     </div>
   </footer>
 

@@ -196,7 +196,7 @@
         <hr class="border-secondary opacity-25">
         <div class="text-center pt-2">
           <p class="small text-secondary mb-0">&copy; <?php echo date('Y'); ?> ITDLH Kelaniya. All Rights Reserved.</p>
-          <p class="small text-muted mb-0" style="font-size: 11px;">Powered by <a href="#" target="_blank" class="text-secondary text-decoration-none fw-semibold">Mandakini Framework</a></p>
+          <p class="small text-muted mb-0" style="font-size: 11px;">Powered by <a href="https://github.com/prageeth79/Mandakini-framework" target="_blank" class="text-secondary text-decoration-none fw-semibold">Mandakini Framework</a></p>
         </div>
       </div>
     </footer>
