@@ -11,15 +11,130 @@ use app\models\CourseOnWeb;
 
 class SiteController extends Controller{
     public function home(Request $request) {
-        //$this->setLayout('blank-layout');
-        $webCourse = new CourseOnWeb();
-        $courses = $webCourse->findAll();
-        return $this->renderViewOnly('itdlh_landing_new', ['webCourseList' => $courses]);
+        $map = [
+            'mso' => [
+                    'title' => 'MS Office Applications',
+                    'description' => 'Comprehensive, practical training on Microsoft Office suite and essential desktop skills for workplace productivity.',
+                    'fee' => 'Rs. 7,500.00',
+                    'image' => '/images/courses/mso.png',
+                    'instructor' => 'L.A.S. Kumarasinghe',
+                    'contents' => [
+                        'Introduction',
+                        'Windows OS',
+                        'MS Word',
+                        'MS Excel',
+                        'MS PowerPoint',
+                        'MS Access',
+                        'Internet And Email',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'web' => [
+                'title' => 'Web Designing',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Learn HTML, CSS, responsive design and modern frontend tooling to build attractive websites.',
+                'image' => '/images/courses/web.webp',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction',
+                        'HTML 5.0',
+                        'CSS 3.0',
+                        'JavaScript',
+                        'Bootstrap',
+                        'wordpress',
+                        'Responsive Design',
+                        'Modern Frontend Tooling'
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'python' => [
+                'title' => 'Programming with Python',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Intro to Python programming, data structures, scripting and practical projects.',
+                'image' => '/images/courses/python.webp',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction to Programming',
+                        'Python Basics',
+                        'OOP with Python',
+                    
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'java' => [
+                'title' => 'Programming with Java',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Object-oriented programming, Java fundamentals and application development.',
+                'image' => '/images/courses/java.jpg',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction to Programming',
+                        'Java Basics',
+                        'OOP with Java',
+                        'Java Application Development',
+                        'connecting Java with Databases',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            
+            'php' => [
+                'title' => 'Programming with PHP',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Server-side web development with PHP: building dynamic websites and simple APIs.',
+                'image' => '/images/courses/php.jpg',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction to PHP',
+                        'PHP Basics',
+                        'OOP with PHP',
+                        'Building Dynamic Websites',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'graphic' => [
+                'title' => 'Graphic Designing',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Design fundamentals, image editing and tools like Photoshop and Illustrator.',
+                'image' => '/images/courses/graphic.jpg',
+                'instructor' => 'T.K.C Talpavila',
+                'contents' => [
+                        'Design Fundamentals',
+                        'Image Editing',
+                        'Photoshop',
+                        'Illustrator',
+                        'CorelDraw',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'english' => [
+                'title' => 'Practical English',
+                'fee' => 'Rs. 6,000.00',
+                'description' => 'Communicative English for students focusing on workplace and technical communication.',
+                'image' => '/images/courses/english.jpg',
+                'instructor' => 'R.T.S. Ranasinghe',
+                'contents' => [
+                        'Grammar Basics',
+                        'Workplace Communication',
+                        'Technical Writing',
+                        'Presentation Skills',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+        ];
+
+        return $this->renderViewOnly('mandakini_landing', ['courses' => $map]);
     }
 
     public function contact(Request $request) {
         $contactForm = new ContactForm();
-        $this->setLayout('itdlh_landing_new');
+        $this->setLayout('mandakini_layout');
         if ($request->isPost()) {
             $contactForm->loadData($request->getBody());
             if ($contactForm->validate() && $contactForm->send()) {
@@ -51,13 +166,13 @@ class SiteController extends Controller{
     
     public function about(Request $request)
     {
-        $this->setLayout('itdlh_landing_new');
+        $this->setLayout('mandakini_layout');
         return $this->render('about');
     }
 
     public function staff(Request $request){
-        $this->setLayout('itdlh_landing_new');
-        return $this->render('staff_new');
+        $this->setLayout('mandakini_layout');
+        return $this->render('staff');
     }
 
     /**
@@ -132,30 +247,141 @@ class SiteController extends Controller{
             return $this->render('_404');
         }
 
-        $this->setLayout('itdlh_landing_new');
-        return $this->render('staff_details_new', ['member' => $staff[$id]]);
+        $this->setLayout('mandakini_layout');
+        return $this->render('staff_details', ['member' => $staff[$id]]);
     }
 
-    public function staffDetails_old(Request $request)
-    {
-        $body = $request->getBody();
-        $id = isset($body['id']) ? (int)$body['id'] : null;
+    public function courses(Request $request) {
+        $courseId = $request->getPath(); // Get the full path
+        $courseId = basename($courseId); // Extract the last part of the path as the course ID
 
-        // Same sample staff list as used in the staff view. Keep in sync or replace with model.
-        $staff = [
-            ['name' => 'Mr. L.A.S. Kumarasinghe', 'role' => 'Center Manager', 'bio' => 'Center Manager of ITDLH Kelaniya and the main instructor for MS Office Applications', 'photo' => 'images/staff/person.webp'],
-            ['name' => 'Ms. R.T.S. Ranasinge', 'role' => 'Instructor', 'bio' => 'Instructor of ITDLH Kelaniya and the main instructor for the \'Certification of Practical English\' course', 'photo' => 'images/staff/person.webp'],
-            ['name' => 'Mr. T.K.C. Talpawila', 'role' => 'Instructor', 'bio' => 'Instructor of ITDLH Kelaniya and the main instructor for the \'Certification of Graphic Design\' course', 'photo' => 'images/staff/person.webp'],
-            ['name' => 'Mr. B.D.P. Niranjan', 'role' => 'Instructor', 'bio' => 'Instructor of ITDLH Kelaniya and the main instructo for Prorgrammin and Web Design Coures', 'photo' => 'images/staff/person.webp'],
+        $courses = [
+            'mso' => [
+                'title' => 'MS Office Applications',
+                'description' => 'Comprehensive, practical training on Microsoft Office suite and essential desktop skills for workplace productivity.',
+                'fee' => 'Rs. 7,500.00',
+                'image' => '/images/courses/mso.png',
+                'instructor' => 'L.A.S. Kumarasinghe',
+                'contents' => [
+                    'Introduction',
+                    'Windows OS',
+                    'MS Word',
+                    'MS Excel',
+                    'MS PowerPoint',
+                    'MS Access',
+                    'Internet And Email',
+                ],
+                'duration' => '120 hours',
+                'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+           'web' => [
+                'title' => 'Web Designing',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Learn HTML, CSS, responsive design and modern frontend tooling to build attractive websites.',
+                'image' => '/images/courses/web.webp',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction',
+                        'HTML 5.0',
+                        'CSS 3.0',
+                        'JavaScript',
+                        'Bootstrap',
+                        'wordpress',
+                        'Responsive Design',
+                        'Modern Frontend Tooling'
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'python' => [
+                'title' => 'Programming with Python',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Intro to Python programming, data structures, scripting and practical projects.',
+                'image' => '/images/courses/python.webp',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction to Programming',
+                        'Python Basics',
+                        'OOP with Python',
+                    
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'java' => [
+                'title' => 'Programming with Java',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Object-oriented programming, Java fundamentals and application development.',
+                'image' => '/images/courses/java.jpg',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction to Programming',
+                        'Java Basics',
+                        'OOP with Java',
+                        'Java Application Development',
+                        'connecting Java with Databases',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            
+            'php' => [
+                'title' => 'Programming with PHP',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Server-side web development with PHP: building dynamic websites and simple APIs.',
+                'image' => '/images/courses/php.jpg',
+                'instructor' => 'B.D.P. Niranjan',
+                'contents' => [
+                        'Introduction to PHP',
+                        'PHP Basics',
+                        'OOP with PHP',
+                        'Building Dynamic Websites',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'graphic' => [
+                'title' => 'Graphic Designing',
+                'fee' => 'Rs. 7,500.00',
+                'description' => 'Design fundamentals, image editing and tools like Photoshop and Illustrator.',
+                'image' => '/images/courses/graphic.jpg',
+                'instructor' => 'T.K.C Talpavila',
+                'contents' => [
+                        'Design Fundamentals',
+                        'Image Editing',
+                        'Photoshop',
+                        'Illustrator',
+                        'CorelDraw',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
+            'english' => [
+                'title' => 'Practical English',
+                'fee' => 'Rs. 6,000.00',
+                'description' => 'Communicative English for students focusing on workplace and technical communication.',
+                'image' => '/images/courses/english.jpg',
+                'instructor' => 'R.T.S. Ranasinghe',
+                'contents' => [
+                        'Grammar Basics',
+                        'Workplace Communication',
+                        'Technical Writing',
+                        'Presentation Skills',
+                    ],
+                    'duration' => '120 hours',
+                    'certification' => 'Certification issued under the Ministry of Education of Sri Lanka',
+            ],
         ];
 
-        if ($id === null || !isset($staff[$id])) {
+        if (!isset($courses[$courseId])) {
             header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
             return $this->render('_404');
         }
 
-        $this->setLayout('main');
-        return $this->render('staff_details', ['member' => $staff[$id]]);
+        $this->setLayout('mandakini_layout');
+        return $this->render('courses', ['course' => $courses[$courseId]]);
     }
+
+   
 }
 

@@ -14,7 +14,7 @@
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="<?php echo $this->asset('css/itdlh.css'); ?>">
+    <link rel="stylesheet" href="<?php echo $this->asset('css/mandakini.css'); ?>">
     
     <style>
       :root {
@@ -94,7 +94,7 @@
     <nav class="navbar navbar-expand-lg custom-navbar sticky-top">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="/">
-          <i class="bi bi-cpu text-primary me-2 fs-4"></i>ITDLH Kelaniya
+          <i class="bi bi-cpu text-primary me-2 fs-4"></i>Mandakini Framework
         </a>
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -146,8 +146,8 @@
       <div class="container">
         <div class="row align-items-center">
           <div class="col-md-8">
-            <h1 class="display-5 mb-2 text-white">ITDLH Kelaniya</h1>
-            <p class="lead text-white-50 mb-0 fs-5">Practical IT courses for students — programming, web, databases and more.</p>
+            <h1 class="display-5 mb-2 text-white">Mandakini Framework</h1>
+            <p class="lead text-white-50 mb-0 fs-5">A modern PHP framework for building scalable web applications.</p>
           </div>
           <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <a class="btn btn-info fw-bold rounded-pill px-4 shadow-sm" href="<?php echo $this->asset('register'); ?>">Join a Course</a>
@@ -184,13 +184,13 @@
       <div class="container">
         <div class="row g-4 text-center text-md-start mb-4">
           <div class="col-md-6">
-            <h5 class="fw-bold text-white mb-3">ITDLH Kelaniya</h5>
+            <h5 class="fw-bold text-white mb-3">Mandakini Framework</h5>
             <p class="small text-secondary mb-0">Empowering the next generation of technology professionals in Sri Lanka through rigorous practical guidance and project-based certifications.</p>
           </div>
           <div class="col-md-6 text-md-end">
             <h6 class="fw-bold text-white mb-2">Connect With Us</h6>
             <p class="small text-secondary mb-1"><i class="bi bi-geo-alt-fill text-danger me-2"></i>Makola North, Kelaniya, Sri Lanka</p>
-            <p class="small text-secondary mb-0"><i class="bi bi-envelope-at-fill text-info me-2"></i>itdlhkelaniya@gmail.com</p>
+            <p class="small text-secondary mb-0"><i class="bi bi-envelope-at-fill text-info me-2"></i>mandakini.framework@gmail.com</p>
           </div>
         </div>
         <hr class="border-secondary opacity-25">

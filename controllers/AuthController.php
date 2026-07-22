@@ -27,7 +27,7 @@ class AuthController extends Controller {
                 return;
             }
         }
-         $this->setLayout('itdlh_landing_new');
+         $this->setLayout('mandakini_layout');
         return $this->render('login', [
             'model' => $model,
         ]);
@@ -56,7 +56,7 @@ class AuthController extends Controller {
             ]);
             
         }
-         $this->setLayout('itdlh_landing_new');
+         $this->setLayout('mandakini_layout');
         return $this->render('register', [
             'model' => $user,
         ]);
@@ -64,7 +64,7 @@ class AuthController extends Controller {
 
     public function profile() {
         $user = Application::$app->user;
-         $this->setLayout('itdlh_landing_new');
+         $this->setLayout('mandakini_layout');
         return $this->render('profile', [
             'user' => $user, 'title' => 'Profile',
         ]);

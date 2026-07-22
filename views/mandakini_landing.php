@@ -10,11 +10,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ITDLH Kelaniya — Information Technology Courses</title>
+  <title>Mandakini Framework</title>
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="<?php echo $this->asset('css/itdlh.css'); ?>">
+  <link rel="stylesheet" href="<?php echo $this->asset('css/mandakini.css'); ?>">
   <style>
     :root {
       --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -142,7 +142,7 @@
     <nav class="navbar navbar-expand-lg custom-navbar sticky-top">
       <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="/">
-          <i class="bi bi-cpu text-primary me-2 fs-4"></i>ITDLH Kelaniya
+          <i class="bi bi-cpu text-primary me-2 fs-4"></i>Mandakini Framework
         </a>
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -193,7 +193,7 @@
       <div class="row align-items-center">
         <div class="col-lg-8">
           <span class="badge bg-info text-dark fw-bold mb-3 px-3 py-2 text-uppercase rounded-pill shadow-sm">Empowering Digital Careers</span>
-          <h1 class="display-4 fw-bold mb-3 text-white">ITDLH Kelaniya</h1>
+          <h1 class="display-4 fw-bold mb-3 text-white">Mandakini Framework</h1>
           <p class="lead text-white-50 mb-4 fs-4">Unlock your technical potential with world-class, practical IT and professional communication courses designed for today's global market.</p>
           <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start">
             <a class="btn btn-info btn-lg px-4 py-3 fw-bold rounded-pill text-dark shadow-sm" href="<?php echo $this->asset('register'); ?>">Join a Course Today</a>
@@ -246,7 +246,7 @@
     <div class="container py-4">
       <div class="row align-items-center g-5">
         <div class="col-md-6">
-          <h2 class="section-title text-start mb-4">About ITDLH Kelaniya</h2>
+          <h2 class="section-title text-start mb-4">About Mandakini Framework</h2>
           <p class="lead text-secondary">We are an educational institute focused on delivering practical IT education to students who want to build high-value careers in technology.</p>
           <p class="text-muted">Our instructors are industry-experienced and classes include modern web development labs and dynamic real-world project assignments.</p>
           <div class="mt-4">
@@ -271,16 +271,16 @@
     <div class="container py-3">
       <h2 class="text-center section-title mb-5">Explore Our Professional Courses</h2>
       <div class="row g-4">
-        <?php foreach($webCourseList as $course) { ?>
+        <?php foreach($courses as $courseKey => $course) { ?>
           <div class="col-md-4">
             <div class="card h-100 shadow-sm course-card border-light">
-              <img src="<?php echo $this->asset($course->course_image_land); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($course->course_name); ?>" style="height: 220px; object-fit: cover;">
+              <img src="<?php echo $this->asset($course['image']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($course['title']); ?>" style="height: 220px; object-fit: cover;">
               <div class="card-body p-4 d-flex flex-column justify-content-between">
                 <div>
-                  <h5 class="fw-bold text-dark mb-2"><?php echo htmlspecialchars($course->course_name); ?></h5>
-                  <p class="text-muted small mb-4"><?php echo htmlspecialchars($course->course_description); ?></p>
+                  <h5 class="fw-bold text-dark mb-2"><?php echo htmlspecialchars($course['title']); ?></h5>
+                  <p class="text-muted small mb-4"><?php echo htmlspecialchars($course['description']); ?></p>
                 </div>
-                <a class="btn btn-outline-primary w-100 rounded-pill fw-medium" href="<?php echo $this->asset('itdlh/course/' . $course->course_id ); ?>">View Course Details</a>
+                <a class="btn btn-outline-primary w-100 rounded-pill fw-medium" href="<?php echo $this->asset('course/' . $courseKey ); ?>">View Course Details</a>
               </div>
             </div>
           </div>
@@ -370,7 +370,7 @@
 
   <footer class="py-5 text-center bg-dark text-white border-top">
     <div class="container">
-      <p class="mb-2 text-white-50">Institute of Technology & Digital Learning Hub (ITDLH) — Kelaniya</p>
+      <p class="mb-2 text-white-50">Tomorrows Technology Today</p>
       <small class="text-secondary">&copy; <?php echo date('Y'); ?> B.D.P. Niranjan. All Rights Reserved. Powered by <a href="https://github.com/prageeth79/Mandakini-framework" target="_blank" class="text-white text-decoration-none">Mandakini Framework</a></small>
     </div>
   </footer>
