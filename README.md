@@ -92,3 +92,10 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - usermanual is written it will be available soon
   - modified the license file
   - copyright statement adjusted
+
+- 22/07/2026
+  - new branch added
+  - branch is modified to only core files only
+  - database access models are deleted and access to records are modified 
+  - this simplifined version will be easy to handle
+  - new branch name `framework-only`
