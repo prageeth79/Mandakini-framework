@@ -5,16 +5,16 @@
 ?>
 <div class="py-5">
   <div class="container">
-    <h1>About ITDLH Kelaniya</h1>
-    <p class="lead">ITDLH Kelaniya provides practical, hands-on IT training for students and professionals. Our mission is to equip learners with the skills required to start careers in technology.</p>
+    <h1>About Mandakini Framework</h1>
+    <p class="lead">Mandakini Framework is a modern PHP framework designed for building scalable and maintainable web applications.</p>
     <div class="row mt-4">
       <div class="col-md-6">
         <h4>Our Approach</h4>
-        <p>Project-based learning, small class sizes, and industry-experienced instructors. We focus on real-world skills and portfolio projects.</p>
+        <p>Mandakini Framework follows a modern approach to web development, emphasizing clean code, maintainability, and scalability. We believe in providing developers with the tools and flexibility they need to build robust applications.</p>
       </div>
       <div class="col-md-6">
         <h4>Contact & Location</h4>
-        <p>Kelaniya, Sri Lanka<br>Email: info@itdlh.example</p>
+        <p>Kaduwela, Sri Lanka<br>Email: mandakini.framework@gmail.com</p>
       </div>
     </div>
   </div>
