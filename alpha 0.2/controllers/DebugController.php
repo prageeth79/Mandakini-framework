@@ -5,7 +5,7 @@ use app\core\Controller;
 use app\core\Application;
 
 class DebugController extends Controller {
-    public function session() {
+    public function sessionAction() {
         header('Content-Type: text/plain');
         echo "--- \\$_SESSION ---\n";
         echo print_r($_SESSION, true);
@@ -14,7 +14,7 @@ class DebugController extends Controller {
         echo "\n";
     }
 
-    public function tables() {
+    public function tablesAction() {
         // show a demo table for users using DBTable helper
         $userModel = new \app\models\User();
         $page = intval($_GET['page'] ?? 1);

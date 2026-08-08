@@ -23,7 +23,7 @@ class View {
            
         }        
         ob_start();
-        include_once Application::$ROOT_DIR . "/views/" . $view . ".php";
+        include_once Application::$ROOT_DIR . "/views/" . $view . "View.php";
         $view = ob_get_clean();
         return $view;
     }

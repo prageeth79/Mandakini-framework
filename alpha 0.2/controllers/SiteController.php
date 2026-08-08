@@ -10,7 +10,7 @@ use app\models\CourseOnWeb;
 
 
 class SiteController extends Controller{
-    public function home(Request $request) {
+    public function homeAction(Request $request) {
         $map = [
             'mso' => [
                     'title' => 'MS Office Applications',
@@ -132,7 +132,7 @@ class SiteController extends Controller{
         return $this->renderViewOnly('mandakini_landing', ['courses' => $map]);
     }
 
-    public function contact(Request $request) {
+    public function contactAction(Request $request) {
         $contactForm = new ContactForm();
         $this->setLayout('mandakini_layout');
         if ($request->isPost()) {
@@ -156,7 +156,7 @@ class SiteController extends Controller{
         ]);
       }
 
-    public function handleContact(Request $request) {
+    public function handleContactAction(Request $request) {
          $body = $request->getBody();
          // Process the form data (e.g., save to database, send email, etc.)
         return $this->render('contact', [
@@ -180,7 +180,7 @@ class SiteController extends Controller{
      * Expects query parameter `id` matching the zero-based index in the staff array.
      */
 
-    public function staffDetails(Request $request)
+    public function staffDetailsAction(Request $request)
     {
         $body = $request->getBody();
         $id = isset($body['id']) ? (int)$body['id'] : null;
@@ -251,7 +251,7 @@ class SiteController extends Controller{
         return $this->render('staff_details', ['member' => $staff[$id]]);
     }
 
-    public function courses(Request $request) {
+    public function coursesAction(Request $request) {
         $courseId = $request->getPath(); // Get the full path
         $courseId = basename($courseId); // Extract the last part of the path as the course ID
 

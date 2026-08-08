@@ -1,0 +1,9 @@
+vendor
+alpha0.1/vendor
+alpha0.2/vendor
+.env
+alpha0.1/.env
+alpha0.2/,env
+USERMANUAL.md
+alpha0.1/USERMANUAL.md
+alpha0.2/USERMANUAL.md

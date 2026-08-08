@@ -17,7 +17,7 @@ class AuthController extends Controller {
     }
 
 
-    public function login(Request $request) {
+    public function loginAction(Request $request) {
 
         $model = new LoginForm();
         if ($request->isPost()) {
@@ -38,7 +38,7 @@ class AuthController extends Controller {
         Application::$app->response->redirect('/');
     }
 
-    public function register(Request $request) {
+    public function registerAction(Request $request) {
         $errors = [];
         $user = new User();
         if ($request->isPost()) {
@@ -62,7 +62,7 @@ class AuthController extends Controller {
         ]);
     }
 
-    public function profile() {
+    public function profileAction() {
         $user = Application::$app->user;
          $this->setLayout('mandakini_layout');
         return $this->render('profile', [
