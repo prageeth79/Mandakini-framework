@@ -3,14 +3,32 @@
 namespace app\models;
 
 use app\core\db\DBModel;
-use app\core\db\MySqlDBColumnsModel;
+use app\core\db\MySqlDBModel;
 
-class Course extends MysqlDBColumnsModel {
+class Course extends MySqlDBModel {
 
     public CourseCategory $category;
+    public string $course_name = '';
+    public string $course_year = '';
+    public string $course_duration = '';
+    public string $course_conducted_by = '';
+    public string $course_begin_date = '';
+    public string $course_end_date = '';
+    public string $course_category = '';
+    public string $course_id = '';
+    
 
     public function __construct(){
-        $category = new CourseCategory();
+        $this->category = new CourseCategory();
+        parent::__construct();   
+    }
+
+
+    public function loadData(array $data): void {
+        parent::loadData($data);
+        if($this->course_category != ''){
+            $this->category = $this->category::findOne(['category_id' => $this->course_category]);
+        }
     }
 
     
@@ -19,7 +37,7 @@ class Course extends MysqlDBColumnsModel {
     } 
 
     public  function rules(): array {
-        $list = $category::findAll();
+        $list = $this->category::findAll();
         return [
             'course_name' => [self::RULE_REQUIRED],
             'course_year' => [self::RULE_REQUIRED, self::RULE_NUMARIC],

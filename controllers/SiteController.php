@@ -10,14 +10,14 @@ use app\models\CourseOnWeb;
 
 
 class SiteController extends Controller{
-    public function home(Request $request) {
+    public function homeAction(Request $request) {
         //$this->setLayout('blank-layout');
         $webCourse = new CourseOnWeb();
         $courses = $webCourse->findAll();
         return $this->renderViewOnly('itdlh_landing_new', ['webCourseList' => $courses]);
     }
 
-    public function contact(Request $request) {
+    public function contactAction(Request $request) {
         $contactForm = new ContactForm();
         $this->setLayout('itdlh_landing_new');
         if ($request->isPost()) {
@@ -41,7 +41,7 @@ class SiteController extends Controller{
         ]);
       }
 
-    public function handleContact(Request $request) {
+    public function handleContactAction(Request $request) {
          $body = $request->getBody();
          // Process the form data (e.g., save to database, send email, etc.)
         return $this->render('contact', [
@@ -49,13 +49,13 @@ class SiteController extends Controller{
         ]);
     }
     
-    public function about(Request $request)
+    public function aboutAction(Request $request)
     {
         $this->setLayout('itdlh_landing_new');
         return $this->render('about');
     }
 
-    public function staff(Request $request){
+    public function staffAction(Request $request){
         $this->setLayout('itdlh_landing_new');
         return $this->render('staff_new');
     }
@@ -65,7 +65,7 @@ class SiteController extends Controller{
      * Expects query parameter `id` matching the zero-based index in the staff array.
      */
 
-    public function staffDetails(Request $request)
+    public function staffDetailsAction(Request $request)
     {
         $body = $request->getBody();
         $id = isset($body['id']) ? (int)$body['id'] : null;

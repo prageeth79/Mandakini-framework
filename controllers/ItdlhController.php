@@ -36,7 +36,7 @@ class ItdlhController extends Controller
      * @param Request $request
      * @return string
      */
-    public function index(Request $request)
+    public function indexAction(Request $request)
     {
         return $this->render('itdlh_landing');
     }
@@ -47,7 +47,7 @@ class ItdlhController extends Controller
      * @param Request $request
      * @return string JSON
      */
-    public function courses(Request $request)
+    public function coursesAction(Request $request)
     {
         $courses = [
             'MS Office Applications',
@@ -69,7 +69,7 @@ class ItdlhController extends Controller
      * @param Request $request
      * @return string
      */
-    public function show_web_course(Request $request)
+    public function show_web_courseAction(Request $request)
     {
         $path = $request->getPath();
         $parts = explode('/', trim($path, '/'));
@@ -109,7 +109,7 @@ class ItdlhController extends Controller
      *
      * @param Request $request
      */
-    public function download(Request $request)
+    public function downloadAction(Request $request)
     {
         // Determine slug from URL parts (second-to-last segment).
         $path = $request->getPath();
@@ -205,7 +205,7 @@ class ItdlhController extends Controller
         return $upload;
     }
     
-    public function add_courses(Request $request)
+    public function add_coursesAction(Request $request)
     {
         $model = new CourseOnWeb();
         $page = intval($request->getValues()['get']['page'] ?? 1);
@@ -240,7 +240,7 @@ class ItdlhController extends Controller
         ]);
     }
 
-    public function edit_courses(Request $request)
+    public function edit_coursesAction(Request $request)
     {
         $id = $request->getValues()['get']['id'];
         $page = $request->getValues()['get']['page'] ?? 1;
@@ -277,7 +277,7 @@ class ItdlhController extends Controller
         ]);
     }
 
-    public function add_category(Request $request){
+    public function add_categoryAction(Request $request){
         $model = new CourseCategory();
         $page = intval($request->getBody()['page'] ?? 1);
 
@@ -298,7 +298,7 @@ class ItdlhController extends Controller
             'model' => $model, 'dataTable' => $dataTable,
         ]);
     }
-    public function edit_category(Request $request){
+    public function edit_categoryAction(Request $request){
         $model = new CourseCategory();
         $page = intval($request->getBody()['page'] ?? 1);
         
@@ -318,7 +318,7 @@ class ItdlhController extends Controller
         ]);
     }
 
-    public function app_home(Request $request){
+    public function app_homeAction(Request $request){
         $isAdmin = Application::isAdmin();
         $this->setLayout('itdlh_landing_new');
         return $this->render('app_new', [

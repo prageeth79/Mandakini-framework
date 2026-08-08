@@ -33,10 +33,14 @@ class Router {
             if(is_string($callback)) {
                 return $this->renderView($callback);
             }else {
-                 if(is_array($callback)) {
+                 if (is_array($callback) && 
+                    is_subclass_of($callback[0], 'app\core\Controller') && 
+                    method_exists($callback[0], $callback[1] . 'Action') &&
+                    str_ends_with($callback[0], 'Controller')) {
                     Application::$app->setController(new $callback[0]());
                     $callback[0] = Application::$app->getController();
                     Application::$app->getController()->action = $callback[1];
+                    $callback[1] = $callback[1] . 'Action';
 
                     foreach (Application::$app->getController()->getMiddlewares() as $middleware) {
                         $middleware->execute();
