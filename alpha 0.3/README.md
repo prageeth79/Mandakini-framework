@@ -102,5 +102,5 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - Labeling is done automatic now if you never specify it will create from the attribute
 - 22/08/2026 - Alpha 0.3
   - QuerryBuilder added
-  - project ajested to use querry builder
+  - project adjested to use querry builder
   - correct minor naming conventions
