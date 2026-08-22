@@ -10,6 +10,29 @@ abstract class DBModel extends Model {
 
     abstract public static function primaryKey(): string;
 
+
+    public static function query(): QueryBuilder
+    {
+        $instance = new static();
+        return new QueryBuilder($instance);
+    }
+
+    /**
+     * Helper shorthand for where conditions.
+     */
+    public static function where(string $column, string $operator, mixed $value = null): QueryBuilder
+    {
+        return static::query()->where($column, $operator, $value);
+    }
+
+    /**
+     * Fetch all records.
+     */
+    public static function all(): array
+    {
+        return static::query()->get();
+    }
+
     public static function prepare($sql) {
         return Application::$app->db->pdo->prepare($sql);
     }
