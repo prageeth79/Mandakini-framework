@@ -8,7 +8,7 @@ use app\core\Application;
  * and provides sensible defaults for `attributes()` and `primaryKey()`.
  */
 
-abstract class PostgresDBModel extends DBModel
+abstract class PostgreDBModel extends DBModel
 {
     /**
      * Cache of discovered columns metadata per table.
