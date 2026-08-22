@@ -96,3 +96,11 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - usermanual is written it will be available soon
   - modified the license file
   - copyright statement adjusted
+- 08/08/2026 - Alpha 0.2
+  - minner ajustment to framework nameing convention is enforce
+  - only controller sub classess can be run it is restricted now
+  - Labeling is done automatic now if you never specify it will create from the attribute
+- 22/08/2026 - Alpha 0.3
+  - QuerryBuilder added
+  - project ajested to use querry builder
+  - correct minor naming conventions
