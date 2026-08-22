@@ -152,8 +152,8 @@ abstract class DBModel extends Model {
     /**
      * Finds a single row mapped directly to the static Model object
      */
-    /*
-    public static function findOne($where) {
+    
+    public static function findOneOld($where) {
         $tableName = static::tableName();
         $attributes = array_keys($where);
         $sql = implode(" AND ", array_map(fn($attr) => "$attr = :$attr", $attributes));
@@ -165,7 +165,7 @@ abstract class DBModel extends Model {
         $statement->execute();
         return $statement->fetchObject(static::class);
     }
-     */
+  
     public static function findOne(): ?object {
         $query = static::query()->limit(1);
         return $query;
@@ -175,8 +175,8 @@ abstract class DBModel extends Model {
     /**
      * Find all records with fully validated injection-free LIMIT and ORDER matrices
      */
-    /*
-    public static function findAll(array $where = [], string $orderBy = null, array $limit = []): array {
+    
+    public static function findAllOld(array $where = [], string $orderBy = null, array $limit = []): array {
         $tableName = static::tableName();
         $sql = "SELECT * FROM $tableName";
 
@@ -205,7 +205,7 @@ abstract class DBModel extends Model {
         $statement->execute();
         return $statement->fetchAll(\PDO::FETCH_CLASS, static::class);
     }
-    */
+    
     public static function findAll(): array {
         $query = static::query();
         return $query;
