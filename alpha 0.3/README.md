@@ -106,5 +106,5 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - correct minor naming conventions
 - 24/08/2026
   - data table modified to create new calulated fileds
-  - a method created to calculated them
+  - a method created to calculate them
 
