@@ -164,13 +164,13 @@ class SiteController extends Controller{
         ]);
     }
     
-    public function about(Request $request)
+    public function aboutAction(Request $request)
     {
         $this->setLayout('mandakini_layout');
         return $this->render('about');
     }
 
-    public function staff(Request $request){
+    public function staffAction(Request $request){
         $this->setLayout('mandakini_layout');
         return $this->render('staff');
     }
