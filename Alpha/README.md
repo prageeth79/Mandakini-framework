@@ -104,7 +104,5 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - QuerryBuilder added
   - project adjested to use querry builder
   - correct minor naming conventions
-- 24/08/2026
-  - data table modified to create new calulated fileds
-  - a method created to calculated them
-
+  - new alpha version intergrates all alpha versions into it
+  - backword compatibility canbe achived since they all alpha versions are in new alpha release

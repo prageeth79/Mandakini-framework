@@ -1,7 +1,7 @@
 <?php
-namespace app\core\db;
-use app\core\Application;
-use app\core\Model;
+namespace app\core\a0_3\db;
+use app\core\a0_3\Application;
+use app\core\a0_3\Model;
 
 abstract class DBModel extends Model {
     abstract public static function tableName(): string;
@@ -9,8 +9,6 @@ abstract class DBModel extends Model {
     abstract public function attributes(): array;
 
     abstract public static function primaryKey(): string;
-
-    abstract public function exec(): bool;
 
 
     public static function query(): QueryBuilder

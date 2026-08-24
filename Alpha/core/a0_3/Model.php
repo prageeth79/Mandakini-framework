@@ -1,5 +1,5 @@
 <?php
-namespace app\core;
+namespace app\core\a0_3;
 
 abstract class Model {
     public const RULE_REQUIRED = 'required';
@@ -33,7 +33,6 @@ abstract class Model {
     }
 
     abstract public function rules(): array;
-
 
     private function create_label($attribute) {
         return ucwords(preg_replace('/(?<!^)[A-Z]/', ' $0',str_replace('_', ' ', $attribute)));

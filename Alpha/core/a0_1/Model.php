@@ -1,5 +1,5 @@
 <?php
-namespace app\core;
+namespace app\core\a0_1;
 
 abstract class Model {
     public const RULE_REQUIRED = 'required';
@@ -34,17 +34,12 @@ abstract class Model {
 
     abstract public function rules(): array;
 
-
-    private function create_label($attribute) {
-        return ucwords(preg_replace('/(?<!^)[A-Z]/', ' $0',str_replace('_', ' ', $attribute)));
-    }
-
     public function labels(): array {
         return [];
     }
 
     public function getLabel($attribute) {
-        return $this->labels()[$attribute] ?? $this->create_label($attribute);
+        return $this->labels()[$attribute] ?? $attribute;
     }
     
     function isValidDate($dateString, $format = 'Y-m-d') {
