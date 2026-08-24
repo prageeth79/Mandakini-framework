@@ -1,6 +1,6 @@
 <?php
-namespace app\core\a0_3\form;
-use app\core\db\a0_3\DBModel;
+namespace app\core\form;
+use app\core\db\DBModel;
 
 class DBTable{
     public DBModel $_model;         // model instance to load data from

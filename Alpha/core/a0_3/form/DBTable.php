@@ -1,6 +1,6 @@
 <?php
 namespace app\core\a0_3\form;
-use app\core\db\a0_3\DBModel;
+use app\core\a0_3\db\DBModel;
 
 class DBTable{
     public DBModel $_model;         // model instance to load data from
@@ -158,7 +158,10 @@ class DBTable{
             <table class="table table-hover custom-grid-table align-middle">
                 <thead>
                     <tr>
-                        <?php foreach($attrs as $field):
+                    
+                        <?php 
+                        /*
+                        foreach($attrs as $field):
                             if(empty($this->_select) || in_array($field, $this->_select)):
                                 $label = method_exists($this->_model, 'labels') && ($labels = $this->_model->labels()) && isset($labels[$field]) ? $labels[$field] : $field;
                         ?>
@@ -166,20 +169,43 @@ class DBTable{
                         <?php
                             endif;
                         endforeach;
+                        */
+                        ?>
+
+                        <?php
+
+                        if(empty($this->_select)){
+                            $attrsToShow = $attrs;
+                        } else {
+                            $attrsToShow = $this->_select;
+                            //$attrsToShow = array_filter($attrs, fn($field) => in_array($field, $this->_select));
+                        }
+
+                        foreach($attrsToShow as $field):
+                            $label = method_exists($this->_model, 'labels') && ($labels = $this->_model->labels()) && isset($labels[$field]) ? $labels[$field] : $field;
+                        ?>
+                        <th><?php echo htmlspecialchars($label); ?></th>
+                        <?php
+                        endforeach;
+
                         if($this->_update_url || $this->_delete_url || $this->_view_url): ?>
                             <th class="text-end pe-4">Actions</th>
                         <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach($modelList as $model): ?>
+                    <?php foreach($modelList as $model): 
+                        
+                        $model->calc(); // Ensure calculated attributes are computed
+                        
+                        ?>
                         <tr>
-                            <?php foreach($attrs as $field):
-                                if(empty($this->_select) || in_array($field, $this->_select)):
+                            <?php foreach($attrsToShow as $field):
+                                
                                     $value = $model->{$field} ?? '';
                             ?>
                                 <td><?php echo htmlspecialchars((string)$value); ?></td>
-                            <?php endif; endforeach; ?>
+                            <?php endforeach; ?>
                             
                             <?php if($this->_update_url || $this->_delete_url || $this->_view_url): ?>
                                 <td class="text-end text-nowrap pe-4">
