@@ -2159,7 +2159,7 @@ class User extends DBModel {
     }
     
     // Calculate fields that aren't in database
-    public function calc() {
+    public function calculate() {
         $this->fullName = $this->firstName . ' ' . $this->lastName;
         
         // Count courses taught
@@ -2209,7 +2209,7 @@ echo $table->renderHtml();
 // In DBTable::renderHtml()
 foreach($modelList as $model) {
     // Call calc() to compute calculated fields
-    $model->calc();
+    $model->calculate();
     
     // Now $model->fullName is available
     // Even though it wasn't in the database
@@ -2230,7 +2230,7 @@ class Course extends DBModel {
     public int $enrollmentCount = 0;
     public float $averageRating = 0.0;
     public string
-    public function calc() {
+    public function calculate() {
         // Count enrollments
         $enrollments = Enrollment::findAll(['course_id' => $this->id]);
         $this->enrollmentCount = count($enrollments);
