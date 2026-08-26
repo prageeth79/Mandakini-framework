@@ -119,4 +119,5 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
 - `HELP.md` — quick help, FAQ, troubleshooting, and quick reference
 - `USERMANUAL.md` — full beginner and developer guide
 - `README.md` — project overview and basic setup
+- `GUIDEBOOK.md` - guide book for users to crating a project
 
