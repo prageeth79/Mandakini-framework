@@ -19,6 +19,10 @@ It explains the framework architecture, feature set, coding patterns, and best p
 - [8. Database Models](#8-database-models)
 - [9. Views and Layouts](#9-views-and-layouts)
 - [10. Form Builder](#10-form-builder)
+  - Form creation and field types
+  - DBTable for data grids
+  - Calculated parameters and operations
+  - Advanced chaining and optimization
 
 ### Application Features
 - [11. Authentication and Session Management](#11-authentication-and-session-management)
@@ -1345,6 +1349,1036 @@ public function uploadAction() {
     
 <?php \app\core\form\Form::end() ?>
 ```
+
+## 10.8 Database Table Display with DBTable
+
+DBTable is a powerful helper class for displaying database records as HTML tables with pagination, filtering, and action buttons. It automatically handles:
+
+- **Automatic pagination** - splits large datasets into pages
+- **Field selection** - choose which columns to display
+- **Filtering** - apply WHERE conditions to the data
+- **Sorting** - order results by column
+- **Action buttons** - View, Edit, Delete links with URL patterns
+- **Modern styling** - Bootstrap-based responsive design with hover effects
+- **Data safety** - automatic HTML escaping to prevent XSS attacks
+
+### 10.8.1 Why use DBTable?
+
+❌ **Without DBTable** - You must manually write:
+```php
+<?php
+    // Load users from database
+    $users = User::findAll();
+    
+    // Handle pagination manually
+    $perPage = 50;
+    $currentPage = $_GET['page'] ?? 1;
+    $offset = ($currentPage - 1) * $perPage;
+    // ... complex offset logic ...
+    
+    // Render HTML table
+    echo "<table>";
+    foreach ($users as $user) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($user->firstName) . "</td>";
+        echo "<td>" . htmlspecialchars($user->email) . "</td>";
+        echo "<td>";
+        echo '<a href="/user/edit/' . $user->id . '">Edit</a> ';
+        echo '<a href="/user/delete/' . $user->id . '">Delete</a>';
+        echo "</td>";
+        echo "</tr>";
+    }
+    echo "</table>";
+    // ... manual pagination HTML ...
+?>
+```
+
+✅ **With DBTable** - Three lines and you're done:
+```php
+<?php
+    $table = new \app\core\form\DBTable(new User(), 1, 50);
+    $table->updateUrl('/user/edit/{id}', '/user/delete/{id}', '/user/view/{id}');
+    echo $table->renderHtml();
+?>
+```
+
+### 10.8.2 Basic usage - Display all records
+
+```php
+<?php
+// In a controller
+$userModel = new User();
+$table = new \app\core\form\DBTable($userModel);
+echo $table->renderHtml();
+?>
+```
+
+This displays ALL users from the database with:
+- 50 records per page (default)
+- All database columns visible
+- No action buttons
+- Automatic pagination
+
+### 10.8.3 With action buttons
+
+```php
+<?php
+// In controllers/UserController.php
+$userModel = new User();
+$table = new \app\core\form\DBTable($userModel, 1, 50);
+
+// Add View, Edit, Delete action buttons
+$table->updateUrl(
+    '/users/edit/{id}',      // Edit URL - {id} replaced with primary key
+    '/users/delete/{id}',    // Delete URL
+    '/users/view/{id}'       // View URL
+);
+
+// Render the table
+echo $table->renderHtml();
+?>
+```
+
+This generates action buttons for each row:
+- **View** button linking to `/users/view/<id>`
+- **Edit** button linking to `/users/edit/<id>`
+- **Delete** button linking to `/users/delete/<id>` with confirmation dialog
+
+The `{id}` placeholder is automatically replaced with the primary key value of each record.
+
+### 10.8.4 Select specific columns only
+
+```php
+<?php
+$userModel = new User();
+$table = new \app\core\form\DBTable(
+    $userModel,
+    1,                                    // page number
+    50,                                   // records per page
+    ['firstName', 'email', 'created_at'], // Only these columns
+    []                                    // No filters
+);
+
+$table->updateUrl('/users/edit/{id}', '/users/delete/{id}');
+echo $table->renderHtml();
+?>
+```
+
+**Result**: Shows only firstName, email, and created_at columns instead of all columns.
+
+### 10.8.5 Filter records with WHERE conditions
+
+```php
+<?php
+$userModel = new User();
+
+// Show only users with role='student'
+$where = ['role' => 'student'];
+
+$table = new \app\core\form\DBTable(
+    $userModel,
+    1,
+    50,
+    [],  // Show all columns
+    $where
+);
+
+$table->updateUrl('/users/edit/{id}', '/users/delete/{id}');
+echo $table->renderHtml();
+?>
+```
+
+**Result**: Displays only records where role = 'student'
+
+**Note**: The WHERE clause uses AND logic. For example:
+```php
+$where = ['role' => 'student', 'status' => 'active'];
+// Generates: WHERE role = 'student' AND status = 'active'
+```
+
+### 10.8.6 Sort records by column
+
+```php
+<?php
+$userModel = new User();
+
+$table = new \app\core\form\DBTable(
+    $userModel,
+    1,
+    50,
+    [],
+    [],
+    'firstName ASC'   // Sort by firstName ascending
+);
+
+$table->updateUrl('/users/edit/{id}', '/users/delete/{id}');
+echo $table->renderHtml();
+?>
+```
+
+**Sorting examples**:
+```php
+'created_at DESC'      // Newest first
+'email ASC'            // Alphabetical
+'grade DESC, name ASC' // Multiple columns
+```
+
+### 10.8.7 Pagination with custom URL
+
+```php
+<?php
+$currentPage = $_GET['page'] ?? 1;
+$userModel = new User();
+
+$table = new \app\core\form\DBTable($userModel, $currentPage, 25);
+$table->updateUrl('/users/edit/{id}', '/users/delete/{id}');
+
+// Custom URL pattern for pagination
+// {page} is replaced with page number
+$table->tableUrl('/admin/users?page={page}');
+
+echo $table->renderHtml();
+?>
+```
+
+If tableUrl is not set, DBTable automatically uses the current URL with `?page=X` parameter.
+
+### 10.8.8 Advanced filtering and selection
+
+```php
+<?php
+// Show active instructors, only certain columns, sorted by rating
+$instructorModel = new User();
+
+$table = new \app\core\form\DBTable(
+    $instructorModel,
+    $_GET['page'] ?? 1,
+    20,
+    ['firstName', 'email', 'rating', 'students_count'],  // Columns to show
+    ['role' => 'instructor', 'status' => 'active'],       // Filter
+    'rating DESC'                                          // Sort
+);
+
+$table->updateUrl(
+    '/admin/edit-instructor/{id}',
+    '/admin/delete-instructor/{id}',
+    '/admin/view-instructor/{id}'
+);
+
+echo $table->renderHtml();
+?>
+```
+
+### 10.8.9 Using model labels for better column headers
+
+By default, DBTable uses column names as headers. You can customize this by defining a `labels()` method in your model:
+
+```php
+<?php
+// In models/User.php
+class User extends UserModel {
+    
+    public function labels() {
+        return [
+            'id' => 'User ID',
+            'firstName' => 'First Name',
+            'email' => 'Email Address',
+            'created_at' => 'Registration Date',
+            'role' => 'User Type',
+            'status' => 'Account Status',
+        ];
+    }
+}
+?>
+```
+
+Now when DBTable renders, it uses these friendly labels instead of raw column names.
+
+### 10.8.10 Complete real-world example
+
+```php
+<?php
+// In controllers/CoursesController.php
+namespace app\controllers;
+
+use app\core\Application;
+use app\core\Controller;
+use app\models\Course;
+
+class CoursesController extends Controller {
+    
+    public function listAction() {
+        // Get current page from URL
+        $page = (int)($_GET['page'] ?? 1);
+        
+        // Create course filter based on view
+        $view = $_GET['view'] ?? 'all';
+        $where = [];
+        
+        if ($view === 'active') {
+            $where['status'] = 'active';
+        } elseif ($view === 'archived') {
+            $where['status'] = 'archived';
+        }
+        
+        // Build the table
+        $courseModel = new Course();
+        $table = new \app\core\form\DBTable(
+            $courseModel,
+            $page,
+            15,  // 15 courses per page
+            ['name', 'category', 'instructor', 'students', 'price', 'rating'],
+            $where,
+            'created_at DESC'
+        );
+        
+        // Add action buttons
+        $table->updateUrl(
+            '/courses/edit/{id}',
+            '/courses/delete/{id}',
+            '/courses/view/{id}'
+        );
+        
+        // Custom pagination URL
+        $table->tableUrl('/courses/list?view=' . urlencode($view) . '&page={page}');
+        
+        // Render
+        echo $table->renderHtml();
+    }
+}
+?>
+```
+
+In the view:
+```php
+<!-- views/coursesView.php -->
+<div class="container mt-5">
+    <h1>Course Management</h1>
+    
+    <div class="mb-3">
+        <a href="?view=all" class="btn btn-outline-secondary">All Courses</a>
+        <a href="?view=active" class="btn btn-outline-success">Active</a>
+        <a href="?view=archived" class="btn btn-outline-warning">Archived</a>
+    </div>
+    
+    <?php echo $controller->table; ?>
+</div>
+```
+
+### 10.8.11 Styling and Bootstrap integration
+
+DBTable uses **Bootstrap 5** classes and generates modern, responsive tables with:
+
+- **Header styling**: Dark background with white text
+- **Row hover effects**: Rows highlight on hover for better UX
+- **Action buttons**: Color-coded (Info=View, Primary=Edit, Danger=Delete)
+- **Pagination controls**: Premium pagination with first/last page jumps
+- **Responsive design**: Tables adapt to mobile screens
+- **Bootstrap Icons**: Uses `bi` icon classes for button icons
+
+To use custom styling, inspect the generated HTML and override the CSS classes.
+
+### 10.8.12 Common patterns
+
+**Pattern 1: Admin data grid**
+```php
+$table = new \app\core\form\DBTable(new User(), $page, 50);
+$table->updateUrl('/admin/users/edit/{id}', '/admin/users/delete/{id}');
+echo $table->renderHtml();
+```
+
+**Pattern 2: Filtered list with pagination from GET parameter**
+```php
+$where = ['department' => $_GET['dept'] ?? 'IT'];
+$page = (int)($_GET['page'] ?? 1);
+$table = new \app\core\form\DBTable(new Staff(), $page, 25, [], $where, 'name ASC');
+echo $table->renderHtml();
+```
+
+**Pattern 3: Search results**
+```php
+// User searched for a keyword
+$keyword = trim($_GET['q'] ?? '');
+$where = []; // Could add LIKE condition here with custom SQL
+
+$table = new \app\core\form\DBTable(new Course(), 1, 20, [], $where);
+echo $table->renderHtml();
+```
+
+### 10.8.13 API Reference
+
+```php
+// Constructor
+$table = new \app\core\form\DBTable(
+    DBModel $model,      // Database model instance
+    int $page = 1,       // Current page (1-based)
+    int $recordsPerPage = 50,
+    array $select = [],  // Column names to display
+    array $where = [],   // Filter conditions
+    ?string $orderby = null
+);
+
+// Methods
+$table->updateUrl(string $update, string $delete, string $view)
+  → Set action button URLs, use {id} as placeholder
+  → Returns $this (chainable)
+
+$table->tableUrl(string $url)
+  → Set custom pagination URL, use {page} as placeholder
+  → Returns $this (chainable)
+
+$table->updateSelect(array $select)
+  → Change which columns to display
+  → Returns $this (chainable)
+
+$table->updateWhere(array $where)
+  → Change filter conditions
+  → Returns $this (chainable)
+
+$table->renderHtml(): string
+  → Generate and return the HTML table
+```
+
+### 10.8.14 Calculated Parameters and Internal Operations
+
+DBTable automatically performs several calculations when rendering. Understanding these helps you use it effectively.
+
+#### Calculation 1: Total Record Count
+
+When DBTable renders, it first counts total records:
+
+```php
+// DBTable calculates:
+$tableName = $this->_model::tableName();  // Get table name from model
+$whereSql = '';
+$bindings = [];
+
+// Build WHERE clause from filter conditions
+if (!empty($this->_where)) {
+    $whereSql = ' WHERE role = :role AND status = :status';
+    $bindings = ['role' => 'student', 'status' => 'active'];
+}
+
+// Execute count query
+$countSql = "SELECT COUNT(*) FROM $tableName" . $whereSql;
+$stmt = \app\core\Application::$app->db->pdo->prepare($countSql);
+foreach ($bindings as $k => $v) {
+    $stmt->bindValue(":$k", $v);
+}
+$stmt->execute();
+$totalCount = (int)$stmt->fetchColumn();
+```
+
+**Why this matters**: DBTable needs the exact total count to calculate pagination. Without it, it can't know if there are more records on the next page.
+
+**Example calculation**:
+```
+Total records in database: 237
+Records per page: 50
+→ Calculated total pages: ceil(237 / 50) = 5 pages
+```
+
+#### Calculation 2: Total Pages
+
+```php
+// Calculate how many pages of results exist
+$totalPages = max(1, (int)ceil($totalCount / $this->_record_no));
+
+// Examples:
+// 237 total records ÷ 50 per page = 4.74 → rounds up to 5 pages
+// 50 total records ÷ 50 per page = 1 page
+// 0 total records → at least 1 page (empty)
+```
+
+The `max(1, ...)` ensures at least 1 page exists even if results are empty.
+
+#### Calculation 3: Current Page Clamping
+
+DBTable validates and constrains the page number:
+
+```php
+// Ensure page number is valid
+$this->_page_id = max(1, min($this->_page_id, $totalPages));
+
+// Examples:
+// If user requests page 99 but only 5 pages exist
+// → Clamped to page 5 (shows last page)
+
+// If user requests page 0 or negative
+// → Clamped to page 1 (shows first page)
+
+// If user requests page 3 and 10 pages exist
+// → Stays at page 3 (valid, no change)
+```
+
+This prevents "out of range" page errors.
+
+#### Calculation 4: Database Offset and Limit
+
+```php
+// Calculate which records to fetch from database
+$offset = ($this->_page_id - 1) * $this->_record_no;
+$limit = ['offset' => $offset, 'row_count' => $this->_record_no];
+
+// Examples:
+// Page 1: offset = (1-1) * 50 = 0     (records 1-50)
+// Page 2: offset = (2-1) * 50 = 50    (records 51-100)
+// Page 3: offset = (3-1) * 50 = 100   (records 101-150)
+// Page 5: offset = (5-1) * 50 = 200   (records 201-250)
+```
+
+This is passed to `findAll()` to fetch exactly the right records for the current page.
+
+#### Calculation 5: Column Selection
+
+```php
+// If specific columns requested
+if(empty($this->_select)){
+    $attrsToShow = $attrs;  // Show all columns
+} else {
+    $attrsToShow = $this->_select;  // Show only specified columns
+}
+
+// Example:
+// Specified: ['firstName', 'email', 'created_at']
+// → Only these 3 columns render in the table
+// → Other columns are ignored
+```
+
+### 10.8.15 Advanced Method Chaining and Fluent Interface
+
+All configuration methods return `$this`, allowing fluent chaining:
+
+#### Basic chaining
+
+```php
+<?php
+// Instead of:
+$table = new \app\core\form\DBTable($userModel, 1, 50);
+$table->updateUrl('/edit/{id}', '/delete/{id}');
+$table->updateSelect(['firstName', 'email']);
+$table->updateWhere(['status' => 'active']);
+echo $table->renderHtml();
+
+// Chain it:
+echo (new \app\core\form\DBTable($userModel, 1, 50))
+    ->updateUrl('/edit/{id}', '/delete/{id}')
+    ->updateSelect(['firstName', 'email'])
+    ->updateWhere(['status' => 'active'])
+    ->renderHtml();
+?>
+```
+
+#### Complex chaining with dynamic filters
+
+```php
+<?php
+$page = (int)($_GET['page'] ?? 1);
+$department = $_GET['dept'] ?? 'IT';
+$status = $_GET['status'] ?? 'active';
+
+$html = (new \app\core\form\DBTable(
+    new Staff(),
+    $page,
+    25,
+    ['name', 'department', 'email', 'phone'],
+    ['department' => $department, 'status' => $status],
+    'name ASC'
+))
+    ->updateUrl('/admin/staff/edit/{id}', '/admin/staff/delete/{id}', '/admin/staff/view/{id}')
+    ->tableUrl('/admin/staff?dept=' . urlencode($department) . '&status=' . urlencode($status) . '&page={page}')
+    ->renderHtml();
+
+echo $html;
+?>
+```
+
+#### Conditional chaining
+
+```php
+<?php
+$table = new \app\core\form\DBTable(new Course(), 1, 30);
+
+// Conditionally add filters
+if (!empty($_GET['category'])) {
+    $table->updateWhere(['category' => $_GET['category']]);
+}
+
+// Conditionally add sorting
+if (!empty($_GET['sort'])) {
+    // Would need to modify constructor for this, but shows the pattern
+}
+
+// Always set URLs
+$table->updateUrl('/courses/edit/{id}', '/courses/delete/{id}');
+
+echo $table->renderHtml();
+?>
+```
+
+### 10.8.16 Pagination Calculation Details
+
+Understanding pagination calculations helps with debugging and optimization.
+
+#### Pagination Math
+
+```php
+// Given:
+$totalRecords = 487;
+$perPage = 20;
+$currentPage = 3;
+
+// Calculated:
+$totalPages = ceil(487 / 20) = 25 pages
+$offset = (3 - 1) * 20 = 40
+// Fetch records 41-60 from database
+```
+
+#### Generated Pagination Links
+
+DBTable automatically calculates and generates pagination links:
+
+```html
+<!-- If on page 3 of 25 total pages, DBTable generates: -->
+<nav>
+    <ul class="pagination">
+        <!-- Previous button -->
+        <li class="page-item">
+            <a href="?page=2">← Prev</a>
+        </li>
+        
+        <!-- First page link (if several pages before current) -->
+        <li><a href="?page=1">1</a></li>
+        <li><span>…</span></li>
+        
+        <!-- Window around current page -->
+        <li><a href="?page=1">1</a></li>
+        <li><a href="?page=2">2</a></li>
+        <li class="active"><a href="?page=3">3</a></li>  <!-- Current -->
+        <li><a href="?page=4">4</a></li>
+        <li><a href="?page=5">5</a></li>
+        
+        <!-- Last page link (if several pages after current) -->
+        <li><span>…</span></li>
+        <li><a href="?page=25">25</a></li>
+        
+        <!-- Next button -->
+        <li><a href="?page=4">Next →</a></li>
+    </ul>
+</nav>
+```
+
+#### Pagination Window Algorithm
+
+DBTable shows a "window" of pages around the current page:
+
+```php
+// Calculate which page numbers to display
+$start = max(1, $this->_page_id - 2);      // 2 pages before current
+$end = min($totalPages, $this->_page_id + 2);  // 2 pages after current
+
+// Example: on page 50 of 100 pages
+// Display: 48, 49, [50], 51, 52
+// Plus "..." and first/last page links
+
+// On page 3 of 100:
+// Display: 1, 2, [3], 4, 5
+// Plus "..." and last page link
+
+// On page 98 of 100:
+// Display: 96, 97, [98], 99, 100
+// Plus first page link and "..."
+```
+
+### 10.8.17 Performance Optimization Tips
+
+DBTable performs calculations and database queries. Optimize for large datasets:
+
+#### Tip 1: Filter before pagination
+
+```php
+// ❌ NOT OPTIMAL - Count all 100,000 records then show 50
+$table = new \app\core\form\DBTable(new Event(), 1, 50);
+echo $table->renderHtml();
+
+// ✅ BETTER - Filter first, then paginate
+$where = ['status' => 'published', 'year' => 2024];
+$table = new \app\core\form\DBTable(new Event(), 1, 50, [], $where);
+echo $table->renderHtml();
+// Now only counts and paginates ~200 records instead of 100,000
+```
+
+#### Tip 2: Select only needed columns
+
+```php
+// ❌ Fetches all 50 columns per row
+$table = new \app\core\form\DBTable($model, 1, 50);
+
+// ✅ Fetches only 5 needed columns
+$table = new \app\core\form\DBTable(
+    $model, 
+    1, 
+    50, 
+    ['firstName', 'email', 'phone', 'status', 'joined']
+);
+// Faster queries and less memory used
+```
+
+#### Tip 3: Appropriate records per page
+
+```php
+// ❌ Too many records per page = slow queries
+$table = new \app\core\form\DBTable($model, 1, 1000);
+
+// ✅ Reasonable per-page size
+$table = new \app\core\form\DBTable($model, 1, 50);
+// Faster loads, smaller HTML output
+
+// ✅ Can adjust based on data complexity
+// Simple data (ID, name, email): 100 per page
+// Complex data (with calculations): 25 per page
+$table = new \app\core\form\DBTable($model, 1, 25);
+```
+
+#### Tip 4: Use database sorting
+
+```php
+// ✅ Let database handle sorting (most efficient)
+$table = new \app\core\form\DBTable($model, 1, 50, [], [], 'created_at DESC');
+// Database sorts efficiently before pagination
+
+// ❌ Avoid - Would need to sort in PHP after fetching
+// (This framework doesn't do this, but bad in other frameworks)
+```
+
+#### Tip 5: Index your filter columns
+
+In your database migrations, ensure filtered columns are indexed:
+
+```php
+<?php
+// migration - m0001_create_users_table.php
+
+class m0001_create_users_table {
+    public function up() {
+        $sql = "CREATE TABLE users (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            loging_id VARCHAR(255) UNIQUE,
+            email VARCHAR(255),
+            status VARCHAR(50),
+            role VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            
+            -- Indexes for common filters
+            INDEX (status),
+            INDEX (role),
+            INDEX (created_at)
+        )";
+        
+        $pdo = Application::$app->db->pdo;
+        $pdo->exec($sql);
+    }
+    
+    public function down() {
+        $pdo = Application::$app->db->pdo;
+        $pdo->exec("DROP TABLE users");
+    }
+}
+?>
+```
+
+### 10.8.18 Working with Calculated and Computed Fields
+
+Models can include calculated fields that aren't in the database. DBTable handles these automatically:
+
+#### Model with calculated field
+
+```php
+<?php
+// models/User.php
+namespace app\models;
+
+use app\core\db\DBModel;
+
+class User extends DBModel {
+    public string $firstName = '';
+    public string $lastName = '';
+    public string $email = '';
+    
+    // This is NOT in database - it's calculated
+    public string $fullName = '';
+    public string $coursesCount = '';
+    
+    public static function tableName(): string {
+        return 'users';
+    }
+    
+    public function attributes(): array {
+        return ['id', 'firstName', 'lastName', 'email', 'created_at'];
+    }
+    
+    public static function primaryKey(): string {
+        return 'id';
+    }
+    
+    // Calculate fields that aren't in database
+    public function calc() {
+        $this->fullName = $this->firstName . ' ' . $this->lastName;
+        
+        // Count courses taught
+        $courses = Course::findAll(['instructor_id' => $this->id]);
+        $this->coursesCount = count($courses);
+    }
+    
+    public function labels(): array {
+        return [
+            'id' => 'User ID',
+            'firstName' => 'First Name',
+            'lastName' => 'Last Name',
+            'fullName' => 'Full Name',
+            'coursesCount' => 'Courses',
+            'email' => 'Email Address',
+        ];
+    }
+}
+?>
+```
+
+#### Display calculated fields in DBTable
+
+```php
+<?php
+// Now request calculated fields even though they're not in attributes()
+$table = new \app\core\form\DBTable(
+    new User(),
+    1,
+    50,
+    // Can include calculated fields here
+    ['fullName', 'email', 'coursesCount', 'created_at']
+);
+
+echo $table->renderHtml();
+
+// Table will show:
+// | Full Name      | Email              | Courses | Created At        |
+// | John Smith     | john@example.com   | 3       | 2024-01-15        |
+// | Jane Doe       | jane@example.com   | 5       | 2024-02-20        |
+?>
+```
+
+**How it works internally**:
+
+```php
+// In DBTable::renderHtml()
+foreach($modelList as $model) {
+    // Call calc() to compute calculated fields
+    $model->calc();
+    
+    // Now $model->fullName is available
+    // Even though it wasn't in the database
+}
+```
+
+#### Advanced example: Calculated stats in grid
+
+```php
+<?php
+// models/Course.php
+class Course extends DBModel {
+    public string $name = '';
+    public string $instructor_id = '';
+    public int $price = 0;
+    
+    // Calculated fields
+    public int $enrollmentCount = 0;
+    public float $averageRating = 0.0;
+    public string $status = '';
+    
+    public function calc() {
+        // Count enrollments
+        $enrollments = Enrollment::findAll(['course_id' => $this->id]);
+        $this->enrollmentCount = count($enrollments);
+        
+        // Calculate average rating
+        $ratings = Rating::findAll(['course_id' => $this->id]);
+        if (count($ratings) > 0) {
+            $sum = array_sum(array_map(fn($r) => $r->rating, $ratings));
+            $this->averageRating = round($sum / count($ratings), 1);
+        }
+        
+        // Determine status
+        if ($this->enrollmentCount > 100) {
+            $this->status = 'Popular';
+        } elseif ($this->enrollmentCount > 50) {
+            $this->status = 'Growing';
+        } else {
+            $this->status = 'New';
+        }
+    }
+}
+?>
+
+<!-- Display calculated stats -->
+<?php
+$table = new \app\core\form\DBTable(
+    new Course(),
+    1,
+    20,
+    ['name', 'enrollmentCount', 'averageRating', 'status', 'price']
+);
+echo $table->renderHtml();
+?>
+```
+
+**Result table**:
+```
+| Course Name           | Enrollments | Rating | Status    | Price  |
+|:--|:--|:--|:--|:--|
+| PHP Basics            | 156         | 4.8    | Popular   | $29.99 |
+| JavaScript Advanced   | 87          | 4.6    | Growing   | $39.99 |
+| Database Design       | 34          | 4.9    | New       | $24.99 |
+```
+
+### 10.8.19 Internal Property Reference
+
+DBTable has internal properties that control its behavior:
+
+| Property | Type | Purpose | Default | Example |
+|----------|------|---------|---------|---------|
+| `$_model` | DBModel | Database model instance | Set in constructor | `new User()` |
+| `$_page_id` | int | Current page number (1-based) | 1 | `3` (page 3) |
+| `$_record_no` | int | Records per page | 50 | `25` |
+| `$_select` | array | Columns to display | `[]` (all) | `['name', 'email']` |
+| `$_where` | array | Filter conditions | `[]` (none) | `['role' => 'admin']` |
+| `$_orderby` | string | Sort order | `null` | `'created_at DESC'` |
+| `$_update_url` | string | Edit button URL | `''` | `'/users/edit/{id}'` |
+| `$_delete_url` | string | Delete button URL | `''` | `'/users/delete/{id}'` |
+| `$_view_url` | string | View button URL | `''` | `'/users/view/{id}'` |
+| `$_tableUrl` | string | Custom pagination URL | `''` | `'/admin/users?page={page}'` |
+
+### 10.8.20 Complete Advanced Example with All Features
+
+```php
+<?php
+// In controllers/InstructorController.php
+
+namespace app\controllers;
+
+use app\core\Application;
+use app\core\Controller;
+use app\core\middlewares\AuthMiddleware;
+use app\models\Course;
+
+class InstructorController extends Controller {
+    
+    public function coursesAction() {
+        // Require login and instructor role
+        $this->setMiddleware(new AuthMiddleware(['instructor', 'admin']));
+        
+        // Get current instructor
+        $instructor = Application::$app->user;
+        
+        // Pagination from GET parameter
+        $page = (int)($_GET['page'] ?? 1);
+        
+        // Filter options from GET
+        $status = $_GET['status'] ?? 'all';
+        $sortBy = $_GET['sort'] ?? 'created_at DESC';
+        
+        // Build filter conditions
+        $where = ['instructor_id' => $instructor->id];
+        
+        if ($status !== 'all') {
+            $where['status'] = $status;
+        }
+        
+        // Build columns to show
+        $select = [
+            'name',
+            'enrollmentCount',    // Calculated field
+            'averageRating',       // Calculated field
+            'price',
+            'status',
+            'created_at'
+        ];
+        
+        // Create table with all parameters
+        $table = new \app\core\form\DBTable(
+            new Course(),
+            $page,
+            15,              // 15 courses per page
+            $select,
+            $where,
+            $sortBy
+        );
+        
+        // Set action URLs
+        $table->updateUrl(
+            '/instructor/course/edit/{id}',
+            '/instructor/course/delete/{id}',
+            '/instructor/course/view/{id}'
+        );
+        
+        // Custom pagination URL with filters
+        $paginationUrl = '/instructor/courses?status=' . urlencode($status) 
+                       . '&sort=' . urlencode($sortBy) 
+                       . '&page={page}';
+        $table->tableUrl($paginationUrl);
+        
+        // Render
+        return $this->render('instructor_courses', [
+            'table' => $table->renderHtml(),
+            'status' => $status,
+            'sortBy' => $sortBy
+        ]);
+    }
+}
+?>
+```
+
+In the view:
+
+```php
+<!-- views/instructor_coursesView.php -->
+<div class="container mt-5">
+    <h1>My Courses</h1>
+    
+    <!-- Filter controls -->
+    <div class="mb-4">
+        <form method="GET" class="row g-2">
+            <div class="col-md-4">
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" <?= $status === 'all' ? 'selected' : '' ?>>All Courses</option>
+                    <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>>Draft</option>
+                    <option value="published" <?= $status === 'published' ? 'selected' : '' ?>>Published</option>
+                    <option value="archived" <?= $status === 'archived' ? 'selected' : '' ?>>Archived</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <select name="sort" class="form-select" onchange="this.form.submit()">
+                    <option value="created_at DESC" <?= $sortBy === 'created_at DESC' ? 'selected' : '' ?>>Newest First</option>
+                    <option value="name ASC" <?= $sortBy === 'name ASC' ? 'selected' : '' ?>>A to Z</option>
+                    <option value="price DESC" <?= $sortBy === 'price DESC' ? 'selected' : '' ?>>Highest Price</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <a href="/instructor/course/create" class="btn btn-primary w-100">
+                    + Create Course
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Data grid with all calculated fields -->
+    <div class="courses-grid">
+        <?php echo $table; ?>
+    </div>
+</div>
+```
+
+---
 
 ## 11. Authentication and Session Management
 
