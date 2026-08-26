@@ -110,3 +110,13 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
 - 25/08/2026 - alpha 0.4
   - paremeter urls added now parrameters canbe added as part of url and can sorted them in app acortingly.
 
+## Training guide
+
+- `GUIDEBOOK.md` — full framework guide book for training, onboarding, and detailed feature explanation
+
+## Help and documentation
+
+- `HELP.md` — quick help, FAQ, troubleshooting, and quick reference
+- `USERMANUAL.md` — full beginner and developer guide
+- `README.md` — project overview and basic setup
+
