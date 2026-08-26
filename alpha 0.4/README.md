@@ -109,6 +109,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - a method created to calculate them
 - 25/08/2026 - alpha 0.4
   - paremeter urls added now parrameters canbe added as part of url and can sorted them in app acortingly.
+  - minor error fixes
 
 ## Training guide
 
