@@ -23,4 +23,8 @@ class CourseCategory extends MySqlDBModel{
             'category_name' => 'Category Name',
         ];
     }
+
+    public function calculate():bool{
+        return true;
+    }
 }

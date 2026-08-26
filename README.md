@@ -52,9 +52,13 @@ Mandakini Framework is a beginner-friendly PHP web framework designed for fast d
    ```bash
    composer install
    ```
-3. Configure your database in `public/config.php`.
-4. Set your web server document root to the main folder which contains `public/` folder.
-5. Open the app in your browser.
+3. (optional) run migration to setup the database tables.
+```bash
+php migrations.php
+```
+4. Configure your database in `public/config.php`.
+5. Set your web server document root to the main folder which contains `public/` folder.
+6. Open the app in your browser.
 
 ## Database support
 
@@ -92,15 +96,29 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - usermanual is written it will be available soon
   - modified the license file
   - copyright statement adjusted
-
-- 22/07/2026
-  - new branch added
-  - branch is modified to only core files only
-  - database access models are deleted and access to records are modified 
-  - this simplifined version will be easy to handle
-  - new branch name `framework-only`
-
 - 08/08/2026 - Alpha 0.2
   - minner ajustment to framework nameing convention is enforce
-  - only controller sub classess can be run it is restricted now
+  - only controller sub classess can be run. it is restricted now
   - Labeling is done automatic now if you never specify it will create from the attribute
+- 22/08/2026 - Alpha 0.3
+  - QuerryBuilder added
+  - project adjested to use querry builder
+  - correct minor naming conventions
+- 24/08/2026
+  - data table modified to create new calulated fileds
+  - a method created to calculate them
+- 25/08/2026 - alpha 0.4
+  - paremeter urls added now parrameters canbe added as part of url and can sorted them in app acortingly.
+  - minor error fixes
+
+## Training guide
+
+- `GUIDEBOOK.md` — full framework guide book for training, onboarding, and detailed feature explanation
+
+## Help and documentation
+
+- `HELP.md` — quick help, FAQ, troubleshooting, and quick reference
+- `USERMANUAL.md` — full beginner and developer guide
+- `README.md` — project overview and basic setup
+- `GUIDEBOOK.md` - guide book for users to crating a project
+

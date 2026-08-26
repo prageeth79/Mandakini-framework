@@ -211,7 +211,7 @@ class ItdlhController extends Controller
         $page = intval($request->getValues()['get']['page'] ?? 1);
         $dataTable = new DBTable($model, $page, 25);
 
-        $dataTable->updateUrl('/public/courses/edit?id={id}&page=' . $page, '/public/courses/delete?id={id}&page=' . $page,'/public/courses/view?id={id}&page=' . $page);
+        $dataTable->updateUrl('/public/courses/edit/{id}?page=' . $page, '/public/courses/delete/{id}?page=' . $page,'/public/courses/view/{id}?page=' . $page);
         if ($request->isPost()) {
             $model->loadData($request->getBody());
 

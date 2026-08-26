@@ -43,20 +43,16 @@ class Request {
         return $this->method() === 'post';
     }
 
-    public function getParam($key, $default = null) {
-        return $_GET[$key] ?? $_POST[$key] ?? $default;
-    }
-
     public function getBody() {
         $body = [];
         if ($this->isGet()) {
             foreach ($_GET as $key => $value) {
-                $body[$key] = is_scalar($value) ? filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS) : $value;
+                $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
         if ($this->isPost()) {
             foreach ($_POST as $key => $value) {
-                $body[$key] = is_scalar($value) ? filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS) : $value;
+                $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
         return $body;
@@ -65,10 +61,10 @@ class Request {
     public function getValues(){
         $values = [];
          foreach ($_GET as $key => $value) {
-            $values['get'][$key] = is_scalar($value) ? filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS) : $value;
+            $values['get'][$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
          }
          foreach ($_POST as $key => $value) {
-            $values['post'][$key] = is_scalar($value) ? filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS) : $value;
+            $values['post'][$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
         }
 
         return $values;

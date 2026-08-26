@@ -43,11 +43,13 @@ $app->router->get('/itdlh/course/english', [ItdlhController::class, 'show_web_co
 //$app->router->get('/itdlh/course', [ItdlhController::class, 'course']);
 
 $app->router->get('/courses/add', [ItdlhController::class, 'add_courses']);
+$app->router->get('/courses/add/{id}', [ItdlhController::class, 'add_courses']);
 $app->router->post('/courses/add', [ItdlhController::class, 'add_courses']);
 $app->router->get('/courses/category/add', [ItdlhController::class, 'add_category']);
 $app->router->post('/courses/category/add', [ItdlhController::class, 'add_category']);
 
 $app->router->get('/courses/edit', [ItdlhController::class, 'edit_courses']);
+$app->router->get('/courses/edit/{id}', [ItdlhController::class, 'edit_courses']);
 $app->router->post('/courses/edit', [ItdlhController::class, 'edit_courses']);
 
 // Protected download routes for course content (serve via controller)

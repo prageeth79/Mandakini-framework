@@ -10,31 +10,6 @@ abstract class DBModel extends Model {
 
     abstract public static function primaryKey(): string;
 
-    abstract public function calculate(): bool;
-
-
-    public static function query(): QueryBuilder
-    {
-        $instance = new static();
-        return new QueryBuilder($instance);
-    }
-
-    /**
-     * Helper shorthand for where conditions.
-     */
-    public static function where(string $column, string $operator, mixed $value = null): QueryBuilder
-    {
-        return static::query()->where($column, $operator, $value);
-    }
-
-    /**
-     * Fetch all records.
-     */
-    public static function all(): array
-    {
-        return static::query()->get();
-    }
-
     public static function prepare($sql) {
         return Application::$app->db->pdo->prepare($sql);
     }
@@ -154,8 +129,7 @@ abstract class DBModel extends Model {
     /**
      * Finds a single row mapped directly to the static Model object
      */
-    
-    public static function findOne($where): ?object {
+    public static function findOne($where) {
         $tableName = static::tableName();
         $attributes = array_keys($where);
         $sql = implode(" AND ", array_map(fn($attr) => "$attr = :$attr", $attributes));
@@ -165,15 +139,12 @@ abstract class DBModel extends Model {
             self::bindWithDataType($statement, ":$key", $item);
         }
         $statement->execute();
-        $result = $statement->fetchObject(static::class);
-        return $result ?: null;
-        //return $statement->fetchObject(static::class);
+        return $statement->fetchObject(static::class);
     }
-  
+
     /**
      * Find all records with fully validated injection-free LIMIT and ORDER matrices
      */
-    
     public static function findAll(array $where = [], string $orderBy = null, array $limit = []): array {
         $tableName = static::tableName();
         $sql = "SELECT * FROM $tableName";
@@ -203,5 +174,4 @@ abstract class DBModel extends Model {
         $statement->execute();
         return $statement->fetchAll(\PDO::FETCH_CLASS, static::class);
     }
-    
 }

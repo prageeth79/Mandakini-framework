@@ -88,4 +88,9 @@ class CourseOnWeb extends MySqlDBModel{
         ];
     }
 
+    public function calculate():bool{
+        return true;
+
+    }
+
 }

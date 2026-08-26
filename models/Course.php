@@ -61,4 +61,8 @@ class Course extends MySqlDBModel {
         ];
     }
 
+    public function calculate():bool{
+        return true;
+    }
+
 }

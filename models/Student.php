@@ -10,4 +10,10 @@ class Student extends MySqlDBModel
     {
         return 'students';
     }
+
+    public function calculate(): bool
+    {
+        // Implement any calculations or logic specific to the Student model here
+        return true;
+    }
 }

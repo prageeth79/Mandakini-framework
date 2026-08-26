@@ -67,4 +67,9 @@ class User extends UserModel {
         $full = trim($first . ' ' . $last);
         return $full !== '' ? $full : ($this->email ?? '');
     }
+
+    public function calculate(): bool{
+        // Implement any calculations or logic specific to the User model here
+        return true;
+    }
 }
