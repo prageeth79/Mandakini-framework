@@ -10,7 +10,7 @@ abstract class DBModel extends Model {
 
     abstract public static function primaryKey(): string;
 
-    abstract public function exec(): bool;
+    abstract public function calculate(): bool;
 
 
     public static function query(): QueryBuilder
@@ -165,7 +165,8 @@ abstract class DBModel extends Model {
             self::bindWithDataType($statement, ":$key", $item);
         }
         $statement->execute();
-        return $statement->fetchObject(static::class);
+        $result = $statement->fetchObject(static::class);
+        return $result ?: null;
     }
   
     /**

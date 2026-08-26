@@ -196,7 +196,7 @@ class DBTable{
                 <tbody>
                     <?php foreach($modelList as $model): 
                         
-                        $model->calc(); // Ensure calculated attributes are computed
+                        $model->calculate(); // Ensure calculated attributes are computed
                         
                         ?>
                         <tr>
