@@ -24,25 +24,33 @@ It explains the framework architecture, feature set, coding patterns, and best p
 - [11. Authentication and Session Management](#11-authentication-and-session-management)
 - [12. Middleware](#12-middleware)
 - [13. Request and Response Lifecycle](#13-request-and-response-lifecycle)
-- [14. Configuration](#14-configuration)
-- [15. Routing Deep Dive](#15-routing-deep-dive)
-- [16. Database Migrations](#16-database-migrations)
+- [15. Configuration](#15-configuration)
+  - Basic setup
+  - Configuration reference
+  - Complete configuration
+  - Database systems
+  - Development vs production
+  - Environment-based setup
+  - Best practices
+  - Testing & runtime
+- [16. Routing Deep Dive](#16-routing-deep-dive)
+- [17. Database Migrations](#17-database-migrations)
 
 ### Security & Best Practices
-- [17. Security Considerations](#17-security-considerations)
-- [18. Best Practices for Training and Team Use](#18-best-practices-for-training-and-team-use)
+- [18. Security Considerations](#18-security-considerations)
+- [19. Best Practices for Training and Team Use](#19-best-practices-for-training-and-team-use)
 
 ### Learning & Training
-- [19. Typical Feature Development Flow](#19-typical-feature-development-flow)
-- [20. Suggested Training Path for New Developers](#20-suggested-training-path-for-new-developers)
-- [21. Labs and Exercises](#21-labs-and-exercises)
-- [22. Common Problems and Solutions](#22-common-problems-and-solutions)
+- [20. Typical Feature Development Flow](#20-typical-feature-development-flow)
+- [21. Suggested Training Path for New Developers](#21-suggested-training-path-for-new-developers)
+- [22. Labs and Exercises](#22-labs-and-exercises)
+- [23. Common Problems and Solutions](#23-common-problems-and-solutions)
 
 ### Reference & Quick Start
-- [23. Quick Reference - Essential Commands](#23-quick-reference---essential-commands)
-- [24. Recommended Training Message to New Developers](#24-recommended-training-message-to-new-developers)
-- [25. Next Steps for Learning](#25-next-steps-for-learning)
-- [26. Key Resources](#26-key-resources)
+- [24. Quick Reference - Essential Commands](#24-quick-reference---essential-commands)
+- [25. Recommended Training Message to New Developers](#25-recommended-training-message-to-new-developers)
+- [26. Next Steps for Learning](#26-next-steps-for-learning)
+- [27. Key Resources](#27-key-resources)
 
 ---
 
@@ -2285,9 +2293,11 @@ $app->router->get('/old-page', function() {
 
 ## 15. Configuration
 
-The application configuration is in `public/config.php`. This file sets up the app's behavior, database connection, and user model.
+The application configuration is in `public/config.php`. This file sets up the app's behavior, database connection, and user model. This is the central place to configure your application for different environments.
 
-### 15.1 Basic configuration example
+### 15.1 Basic configuration example - Minimal setup
+
+The simplest working configuration:
 
 ```php
 <?php
@@ -2297,21 +2307,21 @@ $config = [
     // User model class - used for login/session
     'userClass' => \app\models\User::class,
     
-    // Application name - used in views
+    // Application name - used in views and emails
     'appName' => 'Mandakini Learning Platform',
     
-    // Debug mode - shows detailed errors
+    // Debug mode - shows detailed errors during development
     'debug' => true,
     
     // Database connection settings
     'db' => [
-        // Data Source Name - determines database type and location
+        // Data Source Name (DSN) - determines database type and location
         'dsn' => 'mysql:host=localhost;port=3306;dbname=mandakini',
         
         // Database username
         'username' => 'root',
         
-        // Database password
+        // Database password (empty for local development)
         'password' => '',
     ]
 ];
@@ -2319,9 +2329,123 @@ $config = [
 return $config;
 ```
 
-### 15.2 Database configuration for different systems
+**How to use this:**
+1. Update the `'dbname'` to your actual database name
+2. Update `'username'` and `'password'` with your database credentials
+3. Keep `'debug' => true` during development
+4. Change to `'debug' => false` before deploying to production
 
-**MySQL (localhost)**
+### 15.2 Configuration reference - Understanding each option
+
+**userClass**
+```php
+'userClass' => \app\models\User::class,
+```
+- Specifies which model class handles user authentication
+- Must extend `\app\core\UserModel`
+- Used by `Application::$app->login()` and `Application::$app->user`
+- Example: `\app\models\User::class`, `\app\models\Member::class`
+
+**appName**
+```php
+'appName' => 'Mandakini',
+```
+- The display name of your application
+- Used in views, emails, and page titles
+- Example: `'Mandakini Learning Platform'`, `'Admin Dashboard'`
+
+**debug mode**
+```php
+'debug' => true,
+```
+- `true` - Shows full error messages with stack trace (development only)
+- `false` - Shows generic error page without details (production)
+- Never use `true` in production - exposes sensitive information
+
+**db.dsn** (Data Source Name)
+- Specifies database type and location
+- Format varies by database engine
+- Must match your PDO driver installation
+
+**db.username & db.password**
+- Database credentials
+- Use strong passwords in production
+- Never commit production passwords to version control
+
+### 15.3 Complete configuration with all options explained
+
+```php
+<?php
+/**
+ * Application Configuration
+ * 
+ * This file configures the Mandakini application for your environment.
+ * Update these settings according to your setup and requirements.
+ */
+
+$config = [
+    /**
+     * User Model Class
+     * Specifies who the application uses for authentication.
+     * This model must exist and extend the UserModel class.
+     */
+    'userClass' => \app\models\User::class,
+    
+    /**
+     * Application Name
+     * The name displayed to users in views, emails, and page titles.
+     * Example: "My Learning Platform" or "Admin Portal"
+     */
+    'appName' => 'Mandakini',
+    
+    /**
+     * Debug Mode
+     * IMPORTANT: Always set to false in production!
+     * 
+     * true  = Show detailed errors with stack traces (development only)
+     * false = Show generic error page without sensitive info (production)
+     */
+    'debug' => true,
+    
+    /**
+     * Database Configuration
+     * Configure your database connection here.
+     * Supports: MySQL, PostgreSQL, SQL Server, Oracle
+     */
+    'db' => [
+        /**
+         * Data Source Name (DSN)
+         * Tells PHP how to connect to your database.
+         * Format varies by database type (see examples below).
+         */
+        'dsn' => 'mysql:host=localhost;port=3306;dbname=mandakini',
+        
+        /**
+         * Database Username
+         * The account used to access the database.
+         * For local development: often 'root'
+         * For production: use a limited database user account
+         */
+        'username' => 'root',
+        
+        /**
+         * Database Password
+         * Leave empty for local development without a password.
+         * Use a strong password in production.
+         * 
+         * Security: Never commit production passwords to git!
+         * Use environment variables instead (see section 15.5).
+         */
+        'password' => '',
+    ]
+];
+
+return $config;
+```
+
+### 15.4 Database configuration for different systems
+
+**MySQL (most common)**
 ```php
 'db' => [
     'dsn' => 'mysql:host=localhost;port=3306;dbname=mandakini',
@@ -2330,7 +2454,7 @@ return $config;
 ]
 ```
 
-**MySQL (remote server)**
+**MySQL with remote server**
 ```php
 'db' => [
     'dsn' => 'mysql:host=db.example.com;port=3306;dbname=mandakini',
@@ -2366,59 +2490,85 @@ return $config;
 ]
 ```
 
-### 15.3 Development vs Production configuration
+### 15.5 Development vs Production configuration
 
-**Development setup** (local machine):
+**Local development setup:**
 ```php
+<?php
 $config = [
     'userClass' => \app\models\User::class,
     'appName' => 'Mandakini Dev',
-    'debug' => true,  // Show all errors
+    'debug' => true,  // ✅ Show all errors
     'db' => [
         'dsn' => 'mysql:host=localhost;dbname=mandakini_dev',
         'username' => 'root',
-        'password' => '',
+        'password' => '',  // ✅ No password locally
     ]
 ];
+
+return $config;
 ```
 
-**Production setup** (live server):
+**Production server setup:**
 ```php
+<?php
 $config = [
     'userClass' => \app\models\User::class,
     'appName' => 'Mandakini',
-    'debug' => false,  // Hide errors from users
+    'debug' => false,  // ✅ Hide errors from users
     'db' => [
-        'dsn' => 'mysql:host=db-prod.company.com;dbname=mandakini_prod',
-        'username' => 'prod_user',
-        'password' => 'very_secure_password_xyz',
+        'dsn' => 'mysql:host=db-prod-server.company.com;dbname=mandakini_prod',
+        'username' => 'prod_db_user',
+        'password' => 'very_secure_password_xyz123!@#',  // ✅ Strong password
     ]
 ];
+
+return $config;
 ```
 
-### 15.4 Environment-based configuration
+**Key differences:**
+- `debug` is `false` in production
+- Database hostname is a remote server, not localhost
+- Database credentials are unique and strong
+- Database name might be different (e.g., `_prod` suffix)
 
-To use different configs for different environments:
+### 15.6 Environment-based configuration (recommended)
+
+For better organization, use different config files based on environment:
 
 ```php
 <?php
 // public/config.php
 
-// Detect environment
-$env = getenv('APP_ENV') ?: 'development';
+// Detect environment from server variable or default to development
+$env = $_SERVER['APP_ENV'] ?? 'development';
 
 if ($env === 'production') {
+    // Production configuration (remote database, no debug)
     $config = [
         'userClass' => \app\models\User::class,
         'appName' => 'Mandakini',
         'debug' => false,
         'db' => [
-            'dsn' => getenv('DB_DSN'),
-            'username' => getenv('DB_USER'),
-            'password' => getenv('DB_PASS'),
+            'dsn' => 'mysql:host=prod-db.company.com;dbname=mandakini_prod',
+            'username' => 'prod_user',
+            'password' => $_SERVER['DB_PASSWORD'] ?? '',  // From environment
+        ]
+    ];
+} elseif ($env === 'staging') {
+    // Staging configuration (test server, limited debug)
+    $config = [
+        'userClass' => \app\models\User::class,
+        'appName' => 'Mandakini Staging',
+        'debug' => false,
+        'db' => [
+            'dsn' => 'mysql:host=staging-db.company.com;dbname=mandakini_stage',
+            'username' => 'stage_user',
+            'password' => $_SERVER['DB_PASSWORD'] ?? '',
         ]
     ];
 } else {
+    // Development configuration (localhost, full debug)
     $config = [
         'userClass' => \app\models\User::class,
         'appName' => 'Mandakini Dev',
@@ -2434,59 +2584,93 @@ if ($env === 'production') {
 return $config;
 ```
 
-### 15.5 Configuration with environment variables
+**How to set environment:**
 
-Use a `.env` file for sensitive data:
-
+On your server, set the environment variable:
 ```bash
-# .env (in root directory)
-DB_DSN=mysql:host=localhost;dbname=mandakini
-DB_USER=root
-DB_PASS=
-APP_NAME=Mandakini
-APP_DEBUG=true
+# In Apache .htaccess
+SetEnv APP_ENV production
+
+# In nginx config
+env APP_ENV=production
+
+# In PHP-FPM
+env[APP_ENV] = production
+
+# In command line
+export APP_ENV=production
+php -S localhost:8000
 ```
 
-Then load it in config:
-
-```php
-<?php
-// Load .env file if it exists
-if (file_exists(dirname(__DIR__) . '/.env')) {
-    $env_file = file(dirname(__DIR__) . '/.env');
-    foreach ($env_file as $line) {
-        $line = trim($line);
-        if ($line && !str_starts_with($line, '#')) {
-            [$key, $value] = explode('=', $line, 2);
-            putenv(trim($key) . '=' . trim($value));
-        }
-    }
-}
-
-$config = [
-    'userClass' => \app\models\User::class,
-    'appName' => getenv('APP_NAME') ?: 'Mandakini',
-    'debug' => getenv('APP_DEBUG') === 'true',
-    'db' => [
-        'dsn' => getenv('DB_DSN'),
-        'username' => getenv('DB_USER'),
-        'password' => getenv('DB_PASS'),
-    ]
-];
-
-return $config;
-```
-
-### 15.6 Important configuration keys reference
+### 15.7 Important configuration keys reference
 
 | Key | Type | Purpose | Example |
 |-----|------|---------|---------|
-| `userClass` | Class | Which model handles user login | `\app\models\User::class` |
+| `userClass` | Class | User model for authentication | `\app\models\User::class` |
 | `appName` | String | Application display name | `'Mandakini'` |
-| `debug` | Boolean | Show detailed errors | `true` (dev) / `false` (prod) |
+| `debug` | Boolean | Show errors (dev only) | `true` or `false` |
 | `db.dsn` | String | Database connection string | `'mysql:host=localhost;dbname=app'` |
-| `db.username` | String | Database user | `'root'` |
-| `db.password` | String | Database password | `'password'` |
+| `db.username` | String | Database username | `'root'` or `'app_user'` |
+| `db.password` | String | Database password | `''` or `'password123'` |
+
+### 15.8 Configuration best practices
+
+**✅ Do:**
+- Use `debug => true` only in development
+- Use strong passwords in production
+- Store production credentials in environment variables
+- Create separate database users for different environments
+- Use descriptive app names that show the environment
+- Comment your configuration for team members
+
+**❌ Don't:**
+- Commit production passwords to version control
+- Use `debug => true` on live servers
+- Use the same password for dev and production databases
+- Use generic database credentials
+- Forget to change `debug` mode before deploying
+- Store sensitive data in comments
+
+### 15.9 Testing your configuration
+
+After updating config.php, test the connection:
+
+```php
+<?php
+// Test database connection
+try {
+    $config = require 'config.php';
+    $pdo = new PDO(
+        $config['db']['dsn'],
+        $config['db']['username'],
+        $config['db']['password']
+    );
+    echo "✅ Database connected successfully!";
+    echo "Database: " . $config['db']['dsn'];
+} catch (PDOException $e) {
+    echo "❌ Connection failed: " . $e->getMessage();
+}
+?>
+```
+
+### 15.10 Changing configurations at runtime (rare)
+
+Normally you shouldn't change config, but if needed:
+
+```php
+<?php
+$config = require 'public/config.php';
+
+// Temporarily override for testing
+$old_debug = $config['debug'];
+$config['debug'] = false;
+
+// ... do something ...
+
+// Restore
+$config['debug'] = $old_debug;
+?>
+```
 
 ## 16. Database Migrations
 
