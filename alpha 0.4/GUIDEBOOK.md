@@ -16,6 +16,7 @@ It explains the framework architecture, feature set, coding patterns, and best p
 ### Core Concepts & Components
 - [6. Controllers](#6-controllers)
 - [7. Models and Validation](#7-models-and-validation)
+  - [7.9 Inherited validation models](#79-inherited-validation-models)
 - [8. Database Models](#8-database-models)
 - [9. Views and Layouts](#9-views-and-layouts)
 - [10. Form Builder](#10-form-builder)
@@ -641,6 +642,42 @@ public function labels(): array {
 ```
 
 This improves form output and validation messages. Instead of showing "loging_id", it shows "Login ID".
+
+### 7.9 Inherited validation models
+
+A useful pattern in Mandakini is to create a base model with shared validation and then extend it in more specific forms.
+
+```php
+class BaseUserForm extends Model {
+    public string $email = '';
+    public string $password = '';
+
+    public function rules(): array {
+        return [
+            'email' => [self::RULE_REQUIRED, self::RULE_EMAIL],
+            'password' => [self::RULE_REQUIRED, [self::RULE_MIN, 'min' => 8]],
+        ];
+    }
+}
+```
+
+Then a child form can add its own rules without repeating the parent ones:
+
+```php
+class RegisterForm extends BaseUserForm {
+    public string $firstName = '';
+    public string $confirmPassword = '';
+
+    public function rules(): array {
+        $rules = parent::rules();
+        $rules['firstName'] = [self::RULE_REQUIRED, [self::RULE_MIN, 'min' => 2]];
+        $rules['confirmPassword'] = [self::RULE_REQUIRED, [self::RULE_MATCH, 'match' => 'password']];
+        return $rules;
+    }
+}
+```
+
+This keeps validation reusable and reduces duplication across forms. Use inheritance when the validation rules are shared across multiple models or forms.
 
 ## 8. Database Models
 
@@ -1350,7 +1387,7 @@ public function uploadAction() {
 <?php \app\core\form\Form::end() ?>
 ```
 
-## 10.8 Database Table Display with DBTable
+### 10.8 Database Table Display with DBTable
 
 DBTable is a powerful helper class for displaying database records as HTML tables with pagination, filtering, and action buttons. It automatically handles:
 
@@ -1977,7 +2014,7 @@ DBTable shows a "window" of pages around the current page:
 $start = max(1, $this->_page_id - 2);      // 2 pages before current
 $end = min($totalPages, $this->_page_id + 2);  // 2 pages after current
 
-// Example: on page 50 of 100 pages
+// Example: on page 50 of 
 // Display: 48, 49, [50], 51, 52
 // Plus "..." and first/last page links
 
@@ -2005,7 +2042,7 @@ echo $table->renderHtml();
 $where = ['status' => 'published', 'year' => 2024];
 $table = new \app\core\form\DBTable(new Event(), 1, 50, [], $where);
 echo $table->renderHtml();
-// Now only counts and paginates ~200 records instead of 100,000
+// Now only counts and paginates ~
 ```
 
 #### Tip 2: Select only needed columns
@@ -2192,8 +2229,7 @@ class Course extends DBModel {
     // Calculated fields
     public int $enrollmentCount = 0;
     public float $averageRating = 0.0;
-    public string $status = '';
-    
+    public string
     public function calc() {
         // Count enrollments
         $enrollments = Enrollment::findAll(['course_id' => $this->id]);
@@ -2815,43 +2851,7 @@ class AdminController extends Controller {
         $this->setMiddleware(new AuthMiddleware(['admin', 'instructor']));
         
         $userId = $_GET['id'] ?? null;
-        $user = User::findOne(['loging_id' => $userId]);
-        
-        // Additional permission check
-        if (!Application::$app->user->role === 'admin' && 
-            $user->category !== 'student') {
-            throw new ForbiddenException();
-        }
-        
-        // ... rest of logic
-    }
-}
-
-class CourseController extends Controller {
-    
-    // Public - list all courses
-    public function listAction() {
-        // No middleware - public page
-        $courses = Course::findAll();
-        return $this->render('courses', ['courses' => $courses]);
-    }
-    
-    // Student - enroll in course
-    public function enrollAction() {
-        // Only students can enroll
-        $this->setMiddleware(new AuthMiddleware(['student']));
-        
-        $courseId = $_POST['course_id'];
-        $course = Course::findOne(['id' => $courseId]);
-        
-        // Create enrollment
-        $enrollment = new Enrollment();
-        $enrollment->student_id = Application::$app->user->loging_id;
-        $enrollment->course_id = $courseId;
-        $enrollment->save();
-        
-        Application::$app->session->setFlash('success', 'Enrolled in ' . $course->name);
-        Application::$app->response->redirect('/courses');
+        $user = User::findOne
     }
     
     // Instructor - create course
@@ -4670,8 +4670,8 @@ class FeedbackForm extends Model {
     
     public function rules(): array {
         return [
-            'name' => [self::RULE_REQUIRED],
-            'message' => [self::RULE_REQUIRED, [self::RULE_MIN, 'min' => 5]],
+            'name' => [self::RULE_REQUIRED, [self::RULE_MIN, 'min' => 5]],
+            'message' => [self::RULE_REQUIRED, [self::RULE_MIN, 'min' => 10]],
         ];
     }
 }
@@ -5320,4 +5320,4 @@ This guide book is intended to train developers and help them understand Mandaki
 - A troubleshooting guide for common issues
 - A best practices reference
 
-**You now have a comprehensive guide to build web applications with Mandakini. Start with Section 20 to build your first feature, and refer to this guide as you grow your skills. Happy coding!**
+**You now have a comprehensive guide to build web applications with Mandakini. Start with Section 20 to build your first feature, and refer to this guide as you grow your skills. Happy coding!```
