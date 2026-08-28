@@ -31,7 +31,9 @@ $app->router->get('/itdlh', [ItdlhController::class, 'index']);
 $app->router->get('/itdlh/courses', [ItdlhController::class, 'courses']);
 
 
+$app->router->get('/itdlh/course/{course}', [ItdlhController::class, 'show_web_course']);
 // Course detail pages (per-course routes)
+/*
 $app->router->get('/itdlh/course/mso', [ItdlhController::class, 'show_web_course']);
 $app->router->get('/itdlh/course/web', [ItdlhController::class, 'show_web_course']);
 $app->router->get('/itdlh/course/python', [ItdlhController::class, 'show_web_course']);
@@ -39,7 +41,7 @@ $app->router->get('/itdlh/course/java', [ItdlhController::class, 'show_web_cours
 $app->router->get('/itdlh/course/php', [ItdlhController::class, 'show_web_course']);
 $app->router->get('/itdlh/course/graphic', [ItdlhController::class, 'show_web_course']);
 $app->router->get('/itdlh/course/english', [ItdlhController::class, 'show_web_course']);
-
+*/
 //$app->router->get('/itdlh/course', [ItdlhController::class, 'course']);
 
 $app->router->get('/courses/add', [ItdlhController::class, 'add_courses']);
