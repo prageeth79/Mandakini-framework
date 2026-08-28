@@ -78,7 +78,7 @@ abstract class DBModel extends Model {
     public function update($where = []) {
         $tableName = static::tableName();
         $attributes = $this->attributes();
-        $conditions = array_map(fn($attr) => "$attr = :{$attr}Where", array_keys($where));
+        $conditions = array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", array_keys($where));
         
         $sql = "UPDATE $tableName SET " . implode(', ', array_map(fn($attr) => "$attr = :$attr", $attributes)) . " WHERE " . implode(' AND ', $conditions);
         $statement = self::prepare($sql);
@@ -87,7 +87,8 @@ abstract class DBModel extends Model {
             self::bindWithDataType($statement, ":$attribute", $this->{$attribute});
         }
         foreach ($where as $key => $value) {
-            self::bindWithDataType($statement, ":{$key}Where", $value);
+            self::bindWithDataType($statement, ":{$key}Op", $value[0]);
+            self::bindWithDataType($statement, ":{$key}Where", $value[1]);
         }
         return $statement->execute();
     }
@@ -101,12 +102,13 @@ abstract class DBModel extends Model {
             $primaryKey = static::primaryKey();
             $where = [$primaryKey => $this->{$primaryKey}];
         }
-        $conditions = array_map(fn($attr) => "$attr = :$attr", array_keys($where));
+        $conditions = array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", array_keys($where));
         $sql = "DELETE FROM $tableName WHERE " . implode(' AND ', $conditions);
         
         $statement = self::prepare($sql);
         foreach ($where as $key => $value) {
-            self::bindWithDataType($statement, ":$key", $value);
+            self::bindWithDataType($statement, ":{$key}Op", $value[0]);
+            self::bindWithDataType($statement, ":{$key}Where", $value[1]);
         }
         return $statement->execute();
     }
@@ -158,11 +160,12 @@ abstract class DBModel extends Model {
     public static function findOne($where): ?object {
         $tableName = static::tableName();
         $attributes = array_keys($where);
-        $sql = implode(" AND ", array_map(fn($attr) => "$attr = :$attr", $attributes));
+        $sql = implode(" AND ", array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", $attributes));
         
         $statement = self::prepare("SELECT * FROM $tableName WHERE $sql");
         foreach ($where as $key => $item) {
-            self::bindWithDataType($statement, ":$key", $item);
+            self::bindWithDataType($statement, ":{$key}Op", $item[0]);
+            self::bindWithDataType($statement, ":{$key}Where", $item[1]);
         }
         $statement->execute();
         $result = $statement->fetchObject(static::class);
@@ -180,7 +183,7 @@ abstract class DBModel extends Model {
 
         if (!empty($where)) {
             $attributes = array_keys($where);
-            $sqlWhere = implode(" AND ", array_map(fn($attr) => "$attr = :$attr", $attributes));
+            $sqlWhere = implode(" AND ", array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", $attributes));
             $sql .= " WHERE $sqlWhere";
         }
 
@@ -197,7 +200,8 @@ abstract class DBModel extends Model {
 
         $statement = self::prepare($sql);
         foreach ($where as $key => $item) {
-            self::bindWithDataType($statement, ":$key", $item);
+            self::bindWithDataType($statement, ":{$key}Op", $item[0]);
+            self::bindWithDataType($statement, ":{$key}Where", $item[1]);
         }
         
         $statement->execute();

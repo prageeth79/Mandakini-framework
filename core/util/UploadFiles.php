@@ -1,6 +1,6 @@
 <?php
 
-namespace app\core;
+namespace app\core\util;
 
 class UploadFiles{
     public const FILE_NOFILE_UPLODED = 'no file uploaded';

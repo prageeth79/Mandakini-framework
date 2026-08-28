@@ -59,14 +59,15 @@ class DBTable{
     $bindings = [];
     if (!empty($this->_where)) {
         $attributes = array_keys($this->_where);
-        $whereSql = ' WHERE ' . implode(' AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
+        $whereSql = ' WHERE ' . implode(' AND ', array_map(fn($attr) => "$attr :$attr" . "Op " . ":$attr", $attributes));
         $bindings = $this->_where;
     }
 
     $countSql = "SELECT COUNT(*) FROM $tableName" . $whereSql;
     $stmt = \app\core\Application::$app->db->pdo->prepare($countSql);
     foreach ($bindings as $k => $v) {
-        $stmt->bindValue(":$k", $v);
+        $stmt->bindValue(":$k" . "Op", $v[0]);
+        $stmt->bindValue(":$k", $v[1]);
     }
     $stmt->execute();
     $totalCount = (int)$stmt->fetchColumn();

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\core\encoder;
+namespace app\core\util;
 
 /**
  * QR Code Generator Class
