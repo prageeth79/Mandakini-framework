@@ -119,6 +119,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
     - Report generator
   - utilites are move to util folder
   - utilites can be accessed by Util class
+  - miner error fix on update
 
 ## Training guide
 
