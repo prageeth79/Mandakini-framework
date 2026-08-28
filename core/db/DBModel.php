@@ -76,19 +76,39 @@ abstract class DBModel extends Model {
      * Updates an existing record safely using explicit where bounds
      */
     public function update($where = []) {
+        $allowed_operators = ['=', '<', '>', '<=', '>=', 'LIKE', '!='];
         $tableName = static::tableName();
         $attributes = $this->attributes();
-        $conditions = array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", array_keys($where));
-        
-        $sql = "UPDATE $tableName SET " . implode(', ', array_map(fn($attr) => "$attr = :$attr", $attributes)) . " WHERE " . implode(' AND ', $conditions);
+        $sql = "";
+        $conditions = "";
+        if(is_string($where)) {
+            $conditions = $where;
+             $sql = "UPDATE $tableName SET " . implode(', ', array_map(fn($attr) => "$attr = :$attr", $attributes)) . " WHERE " . $conditions;
+        }else{
+            $conditions = [];
+            foreach ($where as $key => $value) {
+                if (!in_array($value[0], $allowed_operators)) {
+                    throw new \InvalidArgumentException("Invalid operator: {$value[0]}");
+                }
+                $conditions[] = "$key {$value[0]} :{$key}Where";
+            }
+            //$conditions = array_map(fn($attr) => "$attr {$where[$attr][0]} :{$attr}Where", array_keys($where));
+            
+            $sql = "UPDATE $tableName SET " . implode(', ', array_map(fn($attr) => "$attr = :$attr", $attributes)) . " WHERE " . implode(' AND ', $conditions);
+        }
+
         $statement = self::prepare($sql);
         
         foreach ($attributes as $attribute) {
             self::bindWithDataType($statement, ":$attribute", $this->{$attribute});
         }
-        foreach ($where as $key => $value) {
-            self::bindWithDataType($statement, ":{$key}Op", $value[0]);
-            self::bindWithDataType($statement, ":{$key}Where", $value[1]);
+        if(is_string($where)) {
+            //self::bindWithDataType($statement, ":where", $where);
+        }else{
+            foreach ($where as $key => $value) {
+                //self::bindWithDataType($statement, ":{$key}Op", $value[0]);
+                self::bindWithDataType($statement, ":{$key}Where", $value[1]);
+            }
         }
         return $statement->execute();
     }
@@ -97,18 +117,36 @@ abstract class DBModel extends Model {
      * NEW METHOD: Safely deletes a record based on primary key or conditions
      */
     public function delete($where = []) {
+        $allowed_operators = ['=', '<', '>', '<=', '>=', 'LIKE', '!='];
         $tableName = static::tableName();
         if (empty($where)) {
             $primaryKey = static::primaryKey();
             $where = [$primaryKey => $this->{$primaryKey}];
         }
-        $conditions = array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", array_keys($where));
-        $sql = "DELETE FROM $tableName WHERE " . implode(' AND ', $conditions);
-        
+        $sql = "";
+        $conditions = "";
+        if(is_string($where)) {
+            $conditions = $where;
+            $sql = "DELETE FROM $tableName WHERE " . $conditions;
+        }else{
+            $conditions = [];
+            foreach ($where as $key => $value) {
+                if (!in_array($value[0], $allowed_operators)) {
+                    throw new \InvalidArgumentException("Invalid operator: {$value[0]}");
+                }
+                $conditions[] = "$key {$value[0]} :{$key}Where";
+            }
+            $sql = "DELETE FROM $tableName WHERE " . implode(' AND ', $conditions);
+        }
+
         $statement = self::prepare($sql);
-        foreach ($where as $key => $value) {
-            self::bindWithDataType($statement, ":{$key}Op", $value[0]);
-            self::bindWithDataType($statement, ":{$key}Where", $value[1]);
+        if(is_string($where)) {
+            //self::bindWithDataType($statement, ":where", $where);
+        }else{
+            foreach ($where as $key => $value) {
+                //self::bindWithDataType($statement, ":{$key}Op", $value[0]);
+                self::bindWithDataType($statement, ":{$key}Where", $value[1]);
+            }
         }
         return $statement->execute();
     }
@@ -158,13 +196,32 @@ abstract class DBModel extends Model {
      */
     
     public static function findOne($where): ?object {
+        $allowed_operators = ['=', '<', '>', '<=', '>=', 'LIKE', '!='];
         $tableName = static::tableName();
         $attributes = array_keys($where);
-        $sql = implode(" AND ", array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", $attributes));
-        
+        // $sql = implode(" AND ", array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", $attributes));
+        if (is_string($where)) {
+            $sql = $where;
+        } else {
+            $conditions = [];
+            foreach ($where as $key => $item) { 
+                
+                if (!in_array($item[0], $allowed_operators)) {
+                    throw new \InvalidArgumentException("Invalid operator: {$item[0]}");
+                }
+                if($where[$key][0] === 'LIKE') {
+                    $where[$key][1] = "%{$where[$key][1]}%";
+                }
+                $conditions[] = "$key {$item[0]} :{$key}Where";
+            }
+            $sql = implode(" AND ", $conditions);
+            //$sql = implode(" AND ", array_map(fn($attr) => "$attr {$where[$attr][0]} :{$attr}Where", $attributes));
+        }
         $statement = self::prepare("SELECT * FROM $tableName WHERE $sql");
-        foreach ($where as $key => $item) {
-            self::bindWithDataType($statement, ":{$key}Op", $item[0]);
+       
+            //self::bindWithDataType($statement, ":{$key}Op", $item[0]);
+        if (!is_string($where)) {
+            //self::bindWithDataType($statement, ":where", $where);
             self::bindWithDataType($statement, ":{$key}Where", $item[1]);
         }
         $statement->execute();
@@ -177,16 +234,29 @@ abstract class DBModel extends Model {
      * Find all records with fully validated injection-free LIMIT and ORDER matrices
      */
     
-    public static function findAll(array $where = [], string $orderBy = null, array $limit = []): array {
+    public static function findAll($where = [], string $orderBy = null, array $limit = []): array {
         $tableName = static::tableName();
         $sql = "SELECT * FROM $tableName";
+        if (is_string($where)) {
+            $sql .= " WHERE $where";
+        } else{
+            if (!empty($where)) {
+                $conditions = [];
+                $attributes = array_keys($where);
+                foreach ($where as $key => $item) {
+                    if (!in_array($item[0], ['=', '<', '>', '<=', '>=', 'LIKE', '!='])) {
+                        throw new \InvalidArgumentException("Invalid operator: {$item[0]}");
+                    }
+                    if($where[$key][0] === 'LIKE') {
+                        $where[$key][1] = "%{$where[$key][1]}%";
+                    }
+                    $conditions[] = "$key {$item[0]} :{$key}Where";
 
-        if (!empty($where)) {
-            $attributes = array_keys($where);
-            $sqlWhere = implode(" AND ", array_map(fn($attr) => "$attr {:$attr}Op :{$attr}Where", $attributes));
-            $sql .= " WHERE $sqlWhere";
+                }
+                $sqlWhere = implode(" AND ", $conditions);
+                $sql .= " WHERE $sqlWhere";
+            }
         }
-
         if ($orderBy) {
             $sql .= " ORDER BY $orderBy";
         }
@@ -199,9 +269,13 @@ abstract class DBModel extends Model {
         }
 
         $statement = self::prepare($sql);
-        foreach ($where as $key => $item) {
-            self::bindWithDataType($statement, ":{$key}Op", $item[0]);
-            self::bindWithDataType($statement, ":{$key}Where", $item[1]);
+        if (is_string($where)) {
+            //self::bindWithDataType($statement, ":where", $where);
+        } else {
+            foreach ($where as $key => $item) {
+                //self::bindWithDataType($statement, ":{$key}Op", $item[0]);
+                self::bindWithDataType($statement, ":{$key}Where", $item[1]);
+            }
         }
         
         $statement->execute();

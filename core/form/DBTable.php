@@ -57,16 +57,31 @@ class DBTable{
     $tableName = $this->_model::tableName();
     $whereSql = '';
     $bindings = [];
-    if (!empty($this->_where)) {
-        $attributes = array_keys($this->_where);
-        $whereSql = ' WHERE ' . implode(' AND ', array_map(fn($attr) => "$attr :$attr" . "Op " . ":$attr", $attributes));
-        $bindings = $this->_where;
+    if(is_string($this->_where)) {
+        $whereSql = " WHERE {$this->_where}";
+    } else{
+        if (!empty($this->_where)) {
+            $attributes = array_keys($this->_where);
+            $conditions = [];
+            foreach ($this->_where as $key => $item) {
+                if (!in_array($item[0], ['=', '<', '>', '<=', '>=', 'LIKE', '!='])) {
+                    throw new \InvalidArgumentException("Invalid operator: {$item[0]}");
+                }
+                if ($this->_where[$key][0] === 'LIKE') {
+                    $this->_where[$key][1] = "%{$this->_where[$key][1]}%";
+                }
+                $conditions[] = "$key {$item[0]} :{$key}Where";
+            }
+            //$whereSql = ' WHERE ' . implode(' AND ', array_map(fn($attr) => "$attr :$attr" . "Op " . ":$attr", $attributes));
+            $whereSql = ' WHERE ' . implode(' AND ', $conditions);
+            $bindings = $this->_where;
+        }
     }
 
     $countSql = "SELECT COUNT(*) FROM $tableName" . $whereSql;
     $stmt = \app\core\Application::$app->db->pdo->prepare($countSql);
     foreach ($bindings as $k => $v) {
-        $stmt->bindValue(":$k" . "Op", $v[0]);
+        //$stmt->bindValue(":$k" . "Op", $v[0]);
         $stmt->bindValue(":$k", $v[1]);
     }
     $stmt->execute();
