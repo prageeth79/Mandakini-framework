@@ -110,6 +110,15 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
 - 25/08/2026 - alpha 0.4
   - paremeter urls added now parrameters canbe added as part of url and can sorted them in app acortingly.
   - minor error fixes
+- 28/08/2026 - alpha 0.4.1
+  - model and data table conditions now can have oparations such as >, <, != etc...
+  - new utilites are added
+    - QR code genearator
+    - Barcode generator
+    - Encriptor 
+    - Report generator
+  - utilites are move to util folder
+  - utilites can be accessed by Util class
 
 ## Training guide
 
