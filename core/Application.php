@@ -132,4 +132,34 @@ class Application {
         return $this->appName;
     }
 
+    public static function baseUrl(string $path = ''): string
+    {
+        $https =
+            (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || ($_SERVER['SERVER_PORT'] ?? null) == 443;
+
+        $scheme = $https ? 'https' : 'http';
+
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+        $script = $_SERVER['SCRIPT_NAME'] ?? '';
+
+        $basePath = str_replace(
+            '\\',
+            '/',
+            dirname($script)
+        );
+
+        if ($basePath === '/') {
+            $basePath = '';
+        }
+
+        $url = $scheme . '://' . $host . $basePath;
+
+        if ($path !== '') {
+            $url .= '/' . ltrim($path, '/');
+        }
+
+        return $url;
+    }
 }
