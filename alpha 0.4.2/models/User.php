@@ -44,7 +44,7 @@ class User extends UserModel {
         return 'loging_id';
     }
 
-    public function save() {
+    public function save():bool {
         $this->password = password_hash($this->password, PASSWORD_DEFAULT);
         return parent::save();
     }
@@ -68,9 +68,8 @@ class User extends UserModel {
         return $full !== '' ? $full : ($this->email ?? '');
     }
 
-    public function calculate(): bool {
-        // Example calculation: Set status based on category
-       
+    public function calculate(): bool{
+        // Implement any calculations or logic specific to the User model here
         return true;
     }
 }

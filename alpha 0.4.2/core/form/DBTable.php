@@ -4,6 +4,7 @@ namespace app\core\form;
 
 use app\core\db\DBModel;
 use app\core\db\QueryBuilder;
+use app\core\Application;
 
 class DBTable
 {
@@ -566,7 +567,7 @@ class DBTable
         <?php if ($this->_loadCss): ?>
 
             <link rel="stylesheet" href="<?php echo htmlspecialchars(
-                $this->assetUrl('css/dbtable.css')
+                Application::baseUrl('css/dbtable.css')
             ) ?>">
         <?php endif; ?>
 
