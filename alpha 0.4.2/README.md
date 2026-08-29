@@ -129,6 +129,9 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - data model and data table connected to query generator
   - css seperated from data table
   - new functionality to customize dtabase css
+  - minor bug fixes for css separation
+  - new method for finding the baseUrl() in Application
+  
 
 ## Training guide
 
