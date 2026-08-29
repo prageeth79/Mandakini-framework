@@ -124,6 +124,11 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - reporting tool redone with advance reporting
   - report pdf support
   - new advanced querry builder to build your querry
+  - new advance database model
+  - new advance data table
+  - data model and data table connected to query generator
+  - css seperated from data table
+  - new functionality to customize dtabase css
 
 ## Training guide
 

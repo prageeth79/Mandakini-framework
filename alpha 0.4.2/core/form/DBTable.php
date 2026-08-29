@@ -1,476 +1,1095 @@
 <?php
+
 namespace app\core\form;
+
 use app\core\db\DBModel;
+use app\core\db\QueryBuilder;
 
-class DBTable{
-    public DBModel $_model;         // model instance to load data from
-    public int $_page_id;           // current page number (1-based)
-    public int $_record_no;         // number of records per page
-    public array $_select = [];     // which fields should be selected
-    public array $_where = [];      // filter conditions
-    public ?string $_orderby = null;
-    public string $_update_url = '';
-    public string $_delete_url = '';
-    public string $_view_url = '';
-    public string $_tableUrl = '';
+class DBTable
+{
+    protected DBModel $_model;
 
-    public function __construct(DBModel $model, int $page_id = 1, int $record_no = 50, array $select = [], array $where = [], string $orderby = null){
-        $this->_model = $model;
-        $this->_page_id = max(1, $page_id);
-        $this->_record_no = max(1, $record_no);
-        $this->_select = $select;
-        $this->_where = $where;
-        $this->_orderby = $orderby;
-    }
+    protected int $_page_id = 1;
 
-    public function updateUrl(string $updateUrl = '', string $deleteUrl = '', string $viewUrl = ''){
-        $this->_update_url = $updateUrl;
-        $this->_delete_url = $deleteUrl;
-        $this->_view_url = $viewUrl;
-        return $this;
-    }
+    protected int $_record_no = 50;
 
-    public function tableUrl(string $tableUrl){
-        $this->_tableUrl = $tableUrl;
-        return $this;
-    }
+    protected array $_select = [];
 
-    public function updateSelect(array $select){
-        if(is_array($select)){
-            $this->_select = $select;
-        }
-        return $this;
-    }
+    protected string $_cssClass = 'custom-grid-table';
 
-    public function updateWhere(array $where){
-        $this->_where = $where;
-        return $this;
-    }
+    protected bool $_loadCss = true;
 
     /**
-     * Render the table as an HTML string using Bootstrap classes.
-     * @return string
+     * WHERE conditions.
+     *
+     * Preferred:
+     *
+     * [
+     *     ['marks', '>', 0],
+     *     ['marks', '<', 100],
+     * ]
+     *
+     * This allows the SAME column to appear multiple times.
      */
+    protected array $_where = [];
 
-    public function renderHtml(): string {
-    // Compute total rows for pagination
-    $tableName = $this->_model::tableName();
-    $whereSql = '';
-    $bindings = [];
-    if(is_string($this->_where)) {
-        $whereSql = " WHERE {$this->_where}";
-    } else{
-        if (!empty($this->_where)) {
-            $attributes = array_keys($this->_where);
-            $conditions = [];
-            foreach ($this->_where as $key => $item) {
-                if (!in_array($item[0], ['=', '<', '>', '<=', '>=', 'LIKE', '!='])) {
-                    throw new \InvalidArgumentException("Invalid operator: {$item[0]}");
-                }
-                if ($this->_where[$key][0] === 'LIKE') {
-                    $this->_where[$key][1] = "%{$this->_where[$key][1]}%";
-                }
-                $conditions[] = "$key {$item[0]} :{$key}Where";
+    protected ?string $_orderby = null;
+
+    protected string $_update_url = '';
+
+    protected string $_delete_url = '';
+
+    protected string $_view_url = '';
+
+    protected string $_tableUrl = '';
+
+    /**
+     * Optional QueryBuilder customization callback.
+     *
+     * Example:
+     *
+     * ->query(function($query) {
+     *     $query->where('status', 'active')
+     *           ->orWhere('status', 'pending');
+     * })
+     */
+    protected $queryCallback = null;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONSTRUCTOR
+    |--------------------------------------------------------------------------
+    */
+
+    public function __construct(
+        DBModel $model,
+        int $page_id = 1,
+        int $record_no = 50,
+        array $select = [],
+        array $where = [],
+        ?string $orderby = null
+    ) {
+        $this->_model = $model;
+
+        $this->_page_id =
+            max(1, $page_id);
+
+        $this->_record_no =
+            max(1, $record_no);
+
+        $this->_select =
+            $select;
+
+        $this->_where =
+            $where;
+
+        $this->_orderby =
+            $orderby;
+    }
+
+    public function cssClass(string $class): self
+    {
+        $this->_cssClass = $class;
+
+        return $this;
+    }
+
+    public function loadCss(bool $load = true): self
+    {
+        $this->_loadCss = $load;
+
+        return $this;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | QUERY
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Configure the QueryBuilder directly.
+     *
+     * This is the recommended way to create complex tables.
+     *
+     * Example:
+     *
+     * $table->query(function ($query) {
+     *     $query
+     *         ->whereGroup(function ($q) {
+     *             $q->where('marks', '>', 0)
+     *               ->where('marks', '<', 100);
+     *         })
+     *         ->where('status', 'active');
+     * });
+     */
+    public function query(
+        callable $callback
+    ): self {
+        $this->queryCallback =
+            $callback;
+
+        return $this;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SELECT
+    |--------------------------------------------------------------------------
+    */
+
+    public function select(
+        array|string ...$columns
+    ): self {
+        if (
+            count($columns) === 1 &&
+            is_array($columns[0])
+        ) {
+            $columns = $columns[0];
+        }
+
+        $this->_select =
+            $columns;
+
+        return $this;
+    }
+
+
+    public function updateSelect(
+        array $select
+    ): self {
+        return $this->select($select);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | WHERE
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Add a WHERE condition.
+     *
+     * Unlike the old associative array format, this allows:
+     *
+     * ->where('marks', '>', 0)
+     * ->where('marks', '<', 100)
+     */
+    public function where(
+        string $column,
+        string $operator,
+        mixed $value = null
+    ): self {
+        $this->_where[] = [
+            $column,
+            $operator,
+            $value
+        ];
+
+        return $this;
+    }
+
+
+    /**
+     * Add OR WHERE.
+     *
+     * OR conditions are stored separately because the QueryBuilder
+     * itself is responsible for deciding how they are combined.
+     */
+    public function orWhere(
+        string $column,
+        string $operator,
+        mixed $value = null
+    ): self {
+        $this->_where[] = [
+            'OR',
+            $column,
+            $operator,
+            $value
+        ];
+
+        return $this;
+    }
+
+
+    /**
+     * Set legacy WHERE array.
+     */
+    public function updateWhere(
+        array $where
+    ): self {
+        $this->_where =
+            $where;
+
+        return $this;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ORDER
+    |--------------------------------------------------------------------------
+    */
+
+    public function orderBy(
+        string $column,
+        string $direction = 'ASC'
+    ): self {
+        $this->_orderby =
+            "{$column} {$direction}";
+
+        return $this;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    */
+
+    public function page(
+        int $page
+    ): self {
+        $this->_page_id =
+            max(1, $page);
+
+        return $this;
+    }
+
+
+    public function perPage(
+        int $records
+    ): self {
+        $this->_record_no =
+            max(1, $records);
+
+        return $this;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ACTION URLS
+    |--------------------------------------------------------------------------
+    */
+
+    public function updateUrl(
+        string $updateUrl = '',
+        string $deleteUrl = '',
+        string $viewUrl = ''
+    ): self {
+        $this->_update_url =
+            $updateUrl;
+
+        $this->_delete_url =
+            $deleteUrl;
+
+        $this->_view_url =
+            $viewUrl;
+
+        return $this;
+    }
+
+
+    public function tableUrl(
+        string $tableUrl
+    ): self {
+        $this->_tableUrl =
+            $tableUrl;
+
+        return $this;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUILD QUERY
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Build the QueryBuilder used by the table.
+     */
+    protected function buildQuery(): QueryBuilder
+    {
+        $query =
+            $this->_model::query();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SELECT
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($this->_select)) {
+            $query->select(
+                $this->_select
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | WHERE
+        |--------------------------------------------------------------------------
+        */
+
+        $this->applyWhere(
+            $query
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ORDER BY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $this->_orderby !== null &&
+            trim($this->_orderby) !== ''
+        ) {
+            $parts = preg_split(
+                '/\s+/',
+                trim($this->_orderby)
+            );
+
+            $column =
+                $parts[0];
+
+            $direction =
+                strtoupper(
+                    $parts[1] ?? 'ASC'
+                );
+
+            if (
+                !in_array(
+                    $direction,
+                    ['ASC', 'DESC'],
+                    true
+                )
+            ) {
+                throw new \InvalidArgumentException(
+                    'Invalid ORDER BY direction.'
+                );
             }
-            //$whereSql = ' WHERE ' . implode(' AND ', array_map(fn($attr) => "$attr :$attr" . "Op " . ":$attr", $attributes));
-            $whereSql = ' WHERE ' . implode(' AND ', $conditions);
-            $bindings = $this->_where;
+
+            $query->orderBy(
+                $column,
+                $direction
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CUSTOM QUERY
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $this->queryCallback !== null
+        ) {
+            ($this->queryCallback)(
+                $query
+            );
+        }
+
+
+        return $query;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPLY WHERE
+    |--------------------------------------------------------------------------
+    */
+
+    protected function applyWhere(
+        QueryBuilder $query
+    ): void {
+        foreach ($this->_where as $condition) {
+
+            /*
+             * New format:
+             *
+             * [
+             *     'marks',
+             *     '>',
+             *     0
+             * ]
+             */
+            if (
+                isset($condition[0]) &&
+                is_string($condition[0]) &&
+                count($condition) >= 3
+            ) {
+                $query->where(
+                    $condition[0],
+                    $condition[1],
+                    $condition[2]
+                );
+
+                continue;
+            }
+
+
+            /*
+             * OR format:
+             *
+             * [
+             *     'OR',
+             *     'status',
+             *     '=',
+             *     'pending'
+             * ]
+             */
+            if (
+                isset($condition[0]) &&
+                strtoupper($condition[0]) === 'OR' &&
+                count($condition) >= 4
+            ) {
+                $query->orWhere(
+                    $condition[1],
+                    $condition[2],
+                    $condition[3]
+                );
+
+                continue;
+            }
+
+
+            /*
+             * Legacy associative format:
+             *
+             * [
+             *     'status' => ['=', 'active']
+             * ]
+             */
+            if (
+                is_array($condition) &&
+                !isset($condition[0])
+            ) {
+                foreach (
+                    $condition as $column => $value
+                ) {
+                    if (
+                        is_array($value) &&
+                        count($value) >= 2
+                    ) {
+                        $query->where(
+                            $column,
+                            $value[0],
+                            $value[1]
+                        );
+                    } else {
+                        $query->where(
+                            $column,
+                            '=',
+                            $value
+                        );
+                    }
+                }
+            }
         }
     }
 
-    $countSql = "SELECT COUNT(*) FROM $tableName" . $whereSql;
-    $stmt = \app\core\Application::$app->db->pdo->prepare($countSql);
-    foreach ($bindings as $k => $v) {
-        //$stmt->bindValue(":$k" . "Op", $v[0]);
-        $stmt->bindValue(":$k", $v[1]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET DATA
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the paginated table data.
+     */
+    protected function getPagination(): array
+    {
+        return $this
+            ->buildQuery()
+            ->paginate(
+                $this->_page_id,
+                $this->_record_no
+            );
     }
-    $stmt->execute();
-    $totalCount = (int)$stmt->fetchColumn();
-    $totalPages = max(1, (int)ceil($totalCount / $this->_record_no));
 
-    // Clamp current page to valid range
-    $this->_page_id = max(1, min($this->_page_id, $totalPages));
 
-    // Compute offset for DBModel::findAll (expects offset, row_count)
-    $offset = ($this->_page_id - 1) * $this->_record_no;
-    $limit = ['offset' => $offset, 'row_count' => $this->_record_no];
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER HTML
+    |--------------------------------------------------------------------------
+    */
 
-    $modelList = $this->_model::findAll($this->_where, $this->_orderby, $limit);
-    $attrs = $this->_model->attributes();
+    public function renderHtml(): string
+    {
+        $pagination =
+            $this->getPagination();
 
-    ob_start();
-    ?>
-    <style>
-        /* Modern Data Grid Custom Styles */
-        .grid-wrapper {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 15px;
-            margin-bottom: 25px;
-        }
-        .custom-grid-table {
-            border-collapse: separate;
-            border-spacing: 0 8px; /* Gives a separate row feel */
-            margin-bottom: 0 !important;
-        }
-        .custom-grid-table thead th {
-            background-color: #0f2043 !important;
-            color: #ffffff !important;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-            padding: 16px 20px !important;
-            border: none !important;
-        }
-        .custom-grid-table thead th:first-child { border-radius: 10px 0 0 10px; }
-        .custom-grid-table thead th:last-child { border-radius: 0 10px 10px 0; }
-        
-        .custom-grid-table tbody tr {
-            background-color: #ffffff;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-        .custom-grid-table tbody tr:hover {
-            background-color: #f8fafc !important;
-            transform: scale(1.002);
-            box-shadow: 0 4px 12px rgba(15, 32, 67, 0.06);
-        }
-        .custom-grid-table tbody td {
-            padding: 16px 20px !important;
-            vertical-align: middle;
-            color: #475569;
-            font-size: 14px;
-            border-top: 1px solid #e2e8f0 !important;
-            border-bottom: 1px solid #e2e8f0 !important;
-            border-left: none !important;
-            border-right: none !important;
-        }
-        .custom-grid-table tbody tr td:first-child {
-            border-left: 1px solid #e2e8f0 !important;
-            border-radius: 10px 0 0 10px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        .custom-grid-table tbody tr td:last-child {
-            border-right: 1px solid #e2e8f0 !important;
-            border-radius: 0 10px 10px 0;
-        }
-        .grid-action-btn {
-            border-radius: 8px !important;
-            padding: 6px 14px !important;
-            font-weight: 600;
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-    </style>
+        $modelList =
+            $pagination['data'];
 
-    <div class="grid-wrapper">
-        <div class="table-responsive">
-            <table class="table table-hover custom-grid-table align-middle">
-                <thead>
-                    <tr>
-                    
-                        <?php 
-                        /*
-                        foreach($attrs as $field):
-                            if(empty($this->_select) || in_array($field, $this->_select)):
-                                $label = method_exists($this->_model, 'labels') && ($labels = $this->_model->labels()) && isset($labels[$field]) ? $labels[$field] : $field;
-                        ?>
-                            <th><?php echo htmlspecialchars($label); ?></th>
-                        <?php
-                            endif;
-                        endforeach;
-                        */
-                        ?>
+        $totalCount =
+            $pagination['total'];
 
-                        <?php
+        $totalPages =
+            $pagination['last_page'];
 
-                        if(empty($this->_select)){
-                            $attrsToShow = $attrs;
-                        } else {
-                            $attrsToShow = $this->_select;
-                            //$attrsToShow = array_filter($attrs, fn($field) => in_array($field, $this->_select));
-                        }
+        $currentPage =
+            $pagination['current_page'];
 
-                        foreach($attrsToShow as $field):
-                            $label = method_exists($this->_model, 'labels') && ($labels = $this->_model->labels()) && isset($labels[$field]) ? $labels[$field] : $field;
-                        ?>
-                        <th><?php echo htmlspecialchars($label); ?></th>
-                        <?php
-                        endforeach;
+        $attrs =
+            $this->_model->attributes();
 
-                        if($this->_update_url || $this->_delete_url || $this->_view_url): ?>
-                            <th class="text-end pe-4">Actions</th>
-                        <?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach($modelList as $model): 
-                        
-                        $model->calculate(); // Ensure calculated attributes are computed
-                        
-                        ?>
-                        <tr>
-                            <?php foreach($attrsToShow as $field):
-                                
-                                    $value = $model->{$field} ?? '';
-                            ?>
-                                <td><?php echo htmlspecialchars((string)$value); ?></td>
-                            <?php endforeach; ?>
-                            
-                            <?php if($this->_update_url || $this->_delete_url || $this->_view_url): ?>
-                                <td class="text-end text-nowrap pe-4">
-                                    <div class="d-inline-flex gap-2" role="group" aria-label="Actions">
-                                        <?php if($this->_view_url): ?>
-                                            <a class="btn btn-sm btn-info text-white grid-action-btn shadow-sm" href="<?php echo htmlspecialchars(str_replace('{id}', urlencode($model->{$this->_model::primaryKey()}), $this->_view_url)); ?>">
-                                                <i class="bi bi-eye-fill"></i> View
-                                            </a>
-                                        <?php endif; ?>
-                                        <?php if($this->_update_url): ?>
-                                            <a class="btn btn-sm btn-primary grid-action-btn shadow-sm" href="<?php echo htmlspecialchars(str_replace('{id}', urlencode($model->{$this->_model::primaryKey()}), $this->_update_url)); ?>">
-                                                <i class="bi bi-pencil-square"></i> Edit
-                                            </a>
-                                        <?php endif; ?>
-                                        <?php if($this->_delete_url): ?>
-                                            <a class="btn btn-sm btn-danger grid-action-btn shadow-sm" href="<?php echo htmlspecialchars(str_replace('{id}', urlencode($model->{$this->_model::primaryKey()}), $this->_delete_url)); ?>" onclick="return confirm('Are you sure you want to permanently delete this record?');">
-                                                <i class="bi bi-trash3-fill"></i> Delete
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            <?php endif; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <!-- PREMIUM PAGINATION COMPONENT -->
-        <?php if ($totalPages > 1): ?>
-        <nav aria-label="Table pagination" class="mt-4 pt-2 border-top border-light">
-            <ul class="pagination pagination-sm justify-content-center justify-content-md-end mb-0 gap-1">
-                <?php
-                $makeUrl = function($p) {
-                    if (!$this->_tableUrl) {
-                        $base = $_SERVER['REQUEST_URI'] ?? '?';
-                        $sep = strpos($base, '?') === false ? '?' : '&';
-                        return $base . $sep . 'page=' . $p;
-                    }
-                    if (strpos($this->_tableUrl, '{page}') !== false) {
-                        return str_replace('{page}', $p, $this->_tableUrl);
-                    }
-                    $sep = strpos($this->_tableUrl, '?') === false ? '?' : '&';
-                    return $this->_tableUrl . $sep . 'page=' . $p;
-                };
 
-                $prev = $this->_page_id - 1;
-                ?>
-                
-                <!-- Previous Button -->
-                <li class="page-item <?php echo $this->_page_id <= 1 ? 'disabled' : ''; ?>">
-                    <a class="page-link rounded-pill px-3 fw-medium border-0 bg-light text-dark" href="<?php echo $this->_page_id <= 1 ? '#' : htmlspecialchars($makeUrl($prev)); ?>">
-                        <i class="bi bi-chevron-left me-1"></i> Prev
-                    </a>
-                </li>
+        /*
+        |--------------------------------------------------------------------------
+        | DISPLAY COLUMNS
+        |--------------------------------------------------------------------------
+        */
 
-                <?php
-                // Show first page
-                if ($this->_page_id > 3) {
-                    ?>
-                    <li class="page-item"><a class="page-link rounded-circle border-0 text-dark" href="<?php echo htmlspecialchars($makeUrl(1)); ?>">1</a></li>
-                    <?php if ($this->_page_id > 4): ?>
-                        <li class="page-item disabled"><span class="page-link border-0 bg-transparent">&hellip;</span></li>
-                    <?php endif; ?>
-                <?php }
+        $attrsToShow =
+            empty($this->_select)
+                ? $attrs
+                : $this->_select;
 
-                // Window of pages around current
-                $start = max(1, $this->_page_id - 2);
-                $end = min($totalPages, $this->_page_id + 2);
-                for ($p = $start; $p <= $end; $p++): ?>
-                    <li class="page-item <?php echo $p == $this->_page_id ? 'active' : ''; ?>">
-                        <a class="page-link rounded-circle border-0 fw-bold px-3 mx-1 <?php echo $p == $this->_page_id ? 'bg-primary text-white shadow-sm' : 'bg-light text-dark'; ?>" href="<?php echo htmlspecialchars($makeUrl($p)); ?>">
-                            <?php echo $p; ?>
-                        </a>
-                    </li>
-                <?php endfor; ?>
-
-                <?php if ($this->_page_id < $totalPages - 2) {
-                    if ($this->_page_id < $totalPages - 3) {
-                        ?>
-                        <li class="page-item disabled"><span class="page-link border-0 bg-transparent">&hellip;</span></li>
-                        <?php
-                    }
-                    ?>
-                    <li class="page-item"><a class="page-link rounded-circle border-0 text-dark" href="<?php echo htmlspecialchars($makeUrl($totalPages)); ?>"><?php echo $totalPages; ?></a></li>
-                <?php } ?>
-
-                <?php $next = $this->_page_id + 1; ?>
-                
-                <!-- Next Button -->
-                <li class="page-item <?php echo $this->_page_id >= $totalPages ? 'disabled' : ''; ?>">
-                    <a class="page-link rounded-pill px-3 fw-medium border-0 bg-light text-dark" href="<?php echo $this->_page_id >= $totalPages ? '#' : htmlspecialchars($makeUrl($next)); ?>">
-                        Next <i class="bi bi-chevron-right ms-1"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <?php endif; ?>
-    </div>
-    <?php
-    return ob_get_clean();
-}
-
-    public function renderHtml_old(): string {
-        // compute total rows for pagination
-        $tableName = $this->_model::tableName();
-        $whereSql = '';
-        $bindings = [];
-        if (!empty($this->_where)) {
-            $attributes = array_keys($this->_where);
-            $whereSql = ' WHERE ' . implode(' AND ', array_map(fn($attr) => "$attr = :$attr", $attributes));
-            $bindings = $this->_where;
-        }
-
-        $countSql = "SELECT COUNT(*) FROM $tableName" . $whereSql;
-        $stmt = \app\core\Application::$app->db->pdo->prepare($countSql);
-        foreach ($bindings as $k => $v) {
-            $stmt->bindValue(":$k", $v);
-        }
-        $stmt->execute();
-        $totalCount = (int)$stmt->fetchColumn();
-        $totalPages = max(1, (int)ceil($totalCount / $this->_record_no));
-
-        // clamp current page to valid range
-        $this->_page_id = max(1, min($this->_page_id, $totalPages));
-
-        // compute offset for DBModel::findAll (expects offset, row_count)
-        $offset = ($this->_page_id - 1) * $this->_record_no;
-        $limit = ['offset' => $offset, 'row_count' => $this->_record_no];
-
-        $modelList = $this->_model::findAll($this->_where, $this->_orderby, $limit);
-
-        $attrs = $this->_model->attributes();
 
         ob_start();
         ?>
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <?php foreach($attrs as $field):
-                            if(empty($this->_select) || in_array($field, $this->_select)):
-                                $label = method_exists($this->_model, 'labels') && ($labels = $this->_model->labels()) && isset($labels[$field]) ? $labels[$field] : $field;
-                        ?>
-                            <th><?php echo htmlspecialchars($label); ?></th>
-                        <?php
-                            endif;
-                        endforeach;
-                        // action column if any action URL provided
-                        if($this->_update_url || $this->_delete_url || $this->_view_url): ?>
-                            <th>Actions</th>
-                        <?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach($modelList as $model): ?>
-                        <tr>
-                            <?php foreach($attrs as $field):
-                                if(empty($this->_select) || in_array($field, $this->_select)):
-                                    $value = $model->{$field} ?? '';
-                            ?>
-                                <td><?php echo htmlspecialchars((string)$value); ?></td>
-                            <?php endif; endforeach; ?>
-                            <?php if($this->_update_url || $this->_delete_url || $this->_view_url): ?>
-                                <td class="text-nowrap">
-                                    <div class="btn-group flex-nowrap" role="group" aria-label="Actions">
-                                        <?php if($this->_view_url): ?>
-                                            <a class="btn btn-sm btn-info text-white" href="<?php echo htmlspecialchars(str_replace('{id}', urlencode($model->{$this->_model::primaryKey()}), $this->_view_url)); ?>">View</a>
-                                        <?php endif; ?>
-                                        <?php if($this->_update_url): ?>
-                                            <a class="btn btn-sm btn-primary" href="<?php echo htmlspecialchars(str_replace('{id}', urlencode($model->{$this->_model::primaryKey()}), $this->_update_url)); ?>">Edit</a>
-                                        <?php endif; ?>
-                                        <?php if($this->_delete_url): ?>
-                                            <a class="btn btn-sm btn-danger" href="<?php echo htmlspecialchars(str_replace('{id}', urlencode($model->{$this->_model::primaryKey()}), $this->_delete_url)); ?>" onclick="return confirm('Delete this record?');">Delete</a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            <?php endif; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php if ($totalPages > 1): ?>
-        <nav aria-label="Table pagination">
-            <ul class="pagination">
-                <?php
-                $makeUrl = function($p) {
-                    if (!$this->_tableUrl) {
-                        // fallback: use current script and append page param
-                        $base = $_SERVER['REQUEST_URI'] ?? '?';
-                        $sep = strpos($base, '?') === false ? '?' : '&';
-                        return $base . $sep . 'page=' . $p;
-                    }
-                    if (strpos($this->_tableUrl, '{page}') !== false) {
-                        return str_replace('{page}', $p, $this->_tableUrl);
-                    }
-                    $sep = strpos($this->_tableUrl, '?') === false ? '?' : '&';
-                    return $this->_tableUrl . $sep . 'page=' . $p;
-                };
 
-                // Previous
-                $prev = $this->_page_id - 1;
-                ?>
-                <li class="page-item <?php echo $this->_page_id <= 1 ? 'disabled' : ''; ?>">
-                    <a class="page-link" href="<?php echo $this->_page_id <= 1 ? '#' : htmlspecialchars($makeUrl($prev)); ?>">Previous</a>
-                </li>
+        <?php if ($this->_loadCss): ?>
 
-                <?php
-                // show first page
-                if ($this->_page_id > 3) {
-                    ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($makeUrl(1)); ?>">1</a></li>
-                    <?php if ($this->_page_id > 4): ?>
-                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-                    <?php endif; ?>
-                <?php }
-
-                // window of pages around current
-                $start = max(1, $this->_page_id - 2);
-                $end = min($totalPages, $this->_page_id + 2);
-                for ($p = $start; $p <= $end; $p++): ?>
-                    <li class="page-item <?php echo $p == $this->_page_id ? 'active' : ''; ?>"><a class="page-link" href="<?php echo htmlspecialchars($makeUrl($p)); ?>"><?php echo $p; ?></a></li>
-                <?php endfor; ?>
-
-                <?php if ($this->_page_id < $totalPages - 2) {
-                    if ($this->_page_id < $totalPages - 3) {
-                        ?>
-                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
-                        <?php
-                    }
-                    ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($makeUrl($totalPages)); ?>"><?php echo $totalPages; ?></a></li>
-                <?php } ?>
-
-                <?php $next = $this->_page_id + 1; ?>
-                <li class="page-item <?php echo $this->_page_id >= $totalPages ? 'disabled' : ''; ?>">
-                    <a class="page-link" href="<?php echo $this->_page_id >= $totalPages ? '#' : htmlspecialchars($makeUrl($next)); ?>">Next</a>
-                </li>
-            </ul>
-        </nav>
+            <link rel="stylesheet" href="<?php echo htmlspecialchars(
+                $this->assetUrl('css/dbtable.css')
+            ) ?>">
         <?php endif; ?>
+
+        <div class="grid-wrapper">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover <?php echo htmlspecialchars($this->_cssClass) ?> align-middle">
+
+                    <thead>
+                        <tr>
+
+                            <?php foreach (
+                                $attrsToShow as $field
+                            ): ?>
+
+                                <?php
+                                $label = $field;
+
+                                if (
+                                    method_exists(
+                                        $this->_model,
+                                        'labels'
+                                    )
+                                ) {
+                                    $labels =
+                                        $this->_model->labels();
+
+                                    if (
+                                        isset(
+                                            $labels[$field]
+                                        )
+                                    ) {
+                                        $label =
+                                            $labels[$field];
+                                    }
+                                }
+                                ?>
+
+                                <th>
+                                    <?= htmlspecialchars(
+                                        $label
+                                    ) ?>
+                                </th>
+
+                            <?php endforeach; ?>
+
+
+                            <?php if (
+                                $this->_update_url ||
+                                $this->_delete_url ||
+                                $this->_view_url
+                            ): ?>
+
+                                <th class="text-end pe-4">
+                                    Actions
+                                </th>
+
+                            <?php endif; ?>
+
+                        </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                        <?php foreach (
+                            $modelList as $model
+                        ): ?>
+
+                            <?php
+                            if (
+                                method_exists(
+                                    $model,
+                                    'calculate'
+                                )
+                            ) {
+                                $model->calculate();
+                            }
+                            ?>
+
+                            <tr>
+
+                                <?php foreach (
+                                    $attrsToShow as $field
+                                ): ?>
+
+                                    <?php
+                                    $value =
+                                        $model->{$field}
+                                        ?? '';
+                                    ?>
+
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            (string) $value
+                                        ) ?>
+                                    </td>
+
+                                <?php endforeach; ?>
+
+
+                                <?php if (
+                                    $this->_update_url ||
+                                    $this->_delete_url ||
+                                    $this->_view_url
+                                ): ?>
+
+                                    <td class="text-end text-nowrap pe-4">
+
+                                        <div
+                                            class="d-inline-flex gap-2"
+                                            role="group"
+                                            aria-label="Actions"
+                                        >
+
+                                            <?php
+                                            $primaryKey =
+                                                $this->_model::primaryKey();
+
+                                            $id =
+                                                $model->{$primaryKey}
+                                                ?? null;
+                                            ?>
+
+
+                                            <?php if (
+                                                $this->_view_url
+                                            ): ?>
+
+                                                <a
+                                                    class="btn btn-sm btn-info text-white grid-action-btn shadow-sm"
+                                                    href="<?php echo htmlspecialchars(
+                                                        $this->actionUrl(
+                                                            $this->_view_url,
+                                                            $id
+                                                        )
+                                                    ) ?>"
+                                                >
+                                                    <i class="bi bi-eye-fill"></i>
+                                                    View
+                                                </a>
+
+                                            <?php endif; ?>
+
+
+                                            <?php if (
+                                                $this->_update_url
+                                            ): ?>
+
+                                                <a
+                                                    class="btn btn-sm btn-primary grid-action-btn shadow-sm"
+                                                    href="<?php echo htmlspecialchars(
+                                                        $this->actionUrl(
+                                                            $this->_update_url,
+                                                            $id
+                                                        )
+                                                    ) ?>"
+                                                >
+                                                    <i class="bi bi-pencil-square"></i>
+                                                    Edit
+                                                </a>
+
+                                            <?php endif; ?>
+
+
+                                            <?php if (
+                                                $this->_delete_url
+                                            ): ?>
+
+                                                <a
+                                                    class="btn btn-sm btn-danger grid-action-btn shadow-sm"
+                                                    href="<?php echo htmlspecialchars(
+                                                        $this->actionUrl(
+                                                            $this->_delete_url,
+                                                            $id
+                                                        )
+                                                    ) ?>"
+                                                    onclick="return confirm('Are you sure you want to permanently delete this record?');"
+                                                >
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                    Delete
+                                                </a>
+
+                                            <?php endif; ?>
+
+                                        </div>
+
+                                    </td>
+
+                                <?php endif; ?>
+
+                            </tr>
+
+                        <?php endforeach; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <?php if (
+                $totalPages > 1
+            ): ?>
+
+                <?= $this->renderPagination(
+                    $currentPage,
+                    $totalPages
+                ) ?>
+
+            <?php endif; ?>
+
+        </div>
+
         <?php
+
         return ob_get_clean();
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | ACTION URL
+    |--------------------------------------------------------------------------
+    */
 
-    public function __tostring(){
-        return $this->renderHtml();
+    protected function actionUrl(
+        string $url,
+        mixed $id
+    ): string {
+        return str_replace(
+            '{id}',
+            urlencode((string) $id),
+            $url
+        );
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION HTML
+    |--------------------------------------------------------------------------
+    */
+
+    protected function renderPagination(
+        int $currentPage,
+        int $totalPages
+    ): string {
+        ob_start();
+
+        $makeUrl =
+            function (int $page): string {
+
+                if (
+                    !$this->_tableUrl
+                ) {
+                    $base =
+                        $_SERVER['REQUEST_URI']
+                        ?? '?';
+
+                    /*
+                     * Remove an existing page parameter
+                     * so we don't create:
+                     *
+                     * ?page=2&page=3
+                     */
+                    $base =
+                        preg_replace(
+                            '/([?&])page=\d+(&?)/',
+                            '$1',
+                            $base
+                        );
+
+                    $base =
+                        rtrim(
+                            $base,
+                            '?&'
+                        );
+
+                    $separator =
+                        str_contains(
+                            $base,
+                            '?'
+                        )
+                            ? '&'
+                            : '?';
+
+                    return
+                        $base .
+                        $separator .
+                        'page=' .
+                        $page;
+                }
+
+
+                if (
+                    str_contains(
+                        $this->_tableUrl,
+                        '{page}'
+                    )
+                ) {
+                    return str_replace(
+                        '{page}',
+                        (string) $page,
+                        $this->_tableUrl
+                    );
+                }
+
+
+                $separator =
+                    str_contains(
+                        $this->_tableUrl,
+                        '?'
+                    )
+                        ? '&'
+                        : '?';
+
+                return
+                    $this->_tableUrl .
+                    $separator .
+                    'page=' .
+                    $page;
+            };
+
+
+        ?>
+
+        <nav
+            aria-label="Table pagination"
+            class="mt-4 pt-2 border-top border-light"
+        >
+
+            <ul
+                class="pagination pagination-sm justify-content-center justify-content-md-end mb-0 gap-1"
+            >
+
+                <?php
+                $previous =
+                    $currentPage - 1;
+                ?>
+
+                <li
+                    class="page-item <?= $currentPage <= 1
+                        ? 'disabled'
+                        : '' ?>"
+                >
+
+                    <a
+                        class="page-link rounded-pill px-3 fw-medium border-0 bg-light text-dark"
+                        href="<?= $currentPage <= 1
+                            ? '#'
+                            : htmlspecialchars(
+                                $makeUrl($previous)
+                            ) ?>"
+                    >
+                        <i class="bi bi-chevron-left me-1"></i>
+                        Prev
+                    </a>
+
+                </li>
+
+
+                <?php if (
+                    $currentPage > 3
+                ): ?>
+
+                    <li class="page-item">
+
+                        <a
+                            class="page-link rounded-circle border-0 text-dark"
+                            href="<?= htmlspecialchars(
+                                $makeUrl(1)
+                            ) ?>"
+                        >
+                            1
+                        </a>
+
+                    </li>
+
+
+                    <?php if (
+                        $currentPage > 4
+                    ): ?>
+
+                        <li class="page-item disabled">
+                            <span class="page-link border-0 bg-transparent">
+                                &hellip;
+                            </span>
+                        </li>
+
+                    <?php endif; ?>
+
+                <?php endif; ?>
+
+
+                <?php
+                $start =
+                    max(
+                        1,
+                        $currentPage - 2
+                    );
+
+                $end =
+                    min(
+                        $totalPages,
+                        $currentPage + 2
+                    );
+                ?>
+
+
+                <?php for (
+                    $page = $start;
+                    $page <= $end;
+                    $page++
+                ): ?>
+
+                    <li
+                        class="page-item <?= $page === $currentPage
+                            ? 'active'
+                            : '' ?>"
+                    >
+
+                        <a
+                            class="page-link rounded-circle border-0 fw-bold px-3 mx-1 <?= $page === $currentPage
+                                ? 'bg-primary text-white shadow-sm'
+                                : 'bg-light text-dark' ?>"
+                            href="<?= htmlspecialchars(
+                                $makeUrl($page)
+                            ) ?>"
+                        >
+                            <?= $page ?>
+                        </a>
+
+                    </li>
+
+                <?php endfor; ?>
+
+
+                <?php if (
+                    $currentPage <
+                    $totalPages - 2
+                ): ?>
+
+                    <?php if (
+                        $currentPage <
+                        $totalPages - 3
+                    ): ?>
+
+                        <li class="page-item disabled">
+
+                            <span class="page-link border-0 bg-transparent">
+                                &hellip;
+                            </span>
+
+                        </li>
+
+                    <?php endif; ?>
+
+
+                    <li class="page-item">
+
+                        <a
+                            class="page-link rounded-circle border-0 text-dark"
+                            href="<?= htmlspecialchars(
+                                $makeUrl(
+                                    $totalPages
+                                )
+                            ) ?>"
+                        >
+                            <?= $totalPages ?>
+                        </a>
+
+                    </li>
+
+                <?php endif; ?>
+
+
+                <?php
+                $next =
+                    $currentPage + 1;
+                ?>
+
+                <li
+                    class="page-item <?= $currentPage >= $totalPages
+                        ? 'disabled'
+                        : '' ?>"
+                >
+
+                    <a
+                        class="page-link rounded-pill px-3 fw-medium border-0 bg-light text-dark"
+                        href="<?= $currentPage >= $totalPages
+                            ? '#'
+                            : htmlspecialchars(
+                                $makeUrl($next)
+                            ) ?>"
+                    >
+                        Next
+                        <i class="bi bi-chevron-right ms-1"></i>
+                    </a>
+
+                </li>
+
+            </ul>
+
+        </nav>
+
+        <?php
+
+        return ob_get_clean();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STRING CONVERSION
+    |--------------------------------------------------------------------------
+    */
+
+    public function __toString(): string
+    {
+        return $this->renderHtml();
+    }
 }
+
