@@ -6,7 +6,7 @@ use app\core\db\MySqlDBModel;
 
 class Student extends MySqlDBModel
 {
-    public function tableName(): string
+    public static function tableName(): string
     {
         return 'students';
     }
@@ -15,5 +15,12 @@ class Student extends MySqlDBModel
     {
         // Implement any calculations or logic specific to the Student model here
         return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            
+        ];
     }
 }

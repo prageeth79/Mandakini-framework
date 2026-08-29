@@ -72,7 +72,15 @@ class Application {
         try {
             return $this->router->resolve();
         } catch (\Exception $e) {
-            $this->response->setStatusCode($e->getCode());
+            $exceptionCode = $e->getCode();
+
+            $httpStatus = (
+                is_int($exceptionCode) &&
+                $exceptionCode >= 100 &&
+                $exceptionCode <= 599
+            ) ? $exceptionCode : 500;
+
+            $this->response->setStatusCode($httpStatus);
             return $this->router->renderView('_error', [
                 'exception' => $e
             ]);
