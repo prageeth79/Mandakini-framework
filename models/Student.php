@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use app\core\db\MySqlDBModel;
+use app\core\db\mysql\MySqlDBModel;
 
 class Student extends MySqlDBModel
 {

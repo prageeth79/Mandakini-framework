@@ -2,6 +2,7 @@
 
 namespace app\core;
 use app\core\Application;
+use app\core\util\Globals;
 
 
 class Controller {

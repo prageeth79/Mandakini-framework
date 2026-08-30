@@ -3,7 +3,7 @@
 namespace app\models;
 
 use app\core\db\DBModel;
-use app\core\db\MySqlDBModel;
+use app\core\db\mysql\MySqlDBModel;
 
 class Course extends MySqlDBModel {
 

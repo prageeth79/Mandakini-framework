@@ -1,6 +1,6 @@
 <?php 
 namespace app\models;
-use app\core\db\MySqlDBColumnsModel;
+use app\core\db\mysql\MySqlDBColumnsModel;
 use app\core\db\DBModel;
 use app\core\Util;
 

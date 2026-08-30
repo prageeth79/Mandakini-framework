@@ -1,8 +1,9 @@
 <?php
 
-namespace app\core\db;
+namespace app\core\db\oracle;
 
 use app\core\Application;
+use app\core\db\DBModel;
 
 class OracleDBModel extends DBModel
 {

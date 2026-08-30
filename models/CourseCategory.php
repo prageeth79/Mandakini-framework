@@ -1,6 +1,6 @@
 <?php
 namespace app\models;
-use app\core\db\MySqlDBModel;
+use app\core\db\mysql\MySqlDBModel;
 
 class CourseCategory extends MySqlDBModel{
     public string $category_id = '';
