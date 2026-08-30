@@ -1,5 +1,5 @@
 <?php
-namespace app\core\db;
+namespace app\core\db\mysql;
 
 /**
  * MySQL-backed DBModel that automatically discovers table columns

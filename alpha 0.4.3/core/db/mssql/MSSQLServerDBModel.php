@@ -1,7 +1,8 @@
 <?php
-namespace app\core\db;
+namespace app\core\db\mssql;
 
 use app\core\Application;
+use app\core\db\DBModel;
 
 class MSSQLServerDBModel extends DBModel
 {

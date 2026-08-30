@@ -141,6 +141,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
     - Oracle
   - no need to declare fields now these new classes define them automaticaly.
   - Globals class has been created and it has getConfig() method
+  - specific database class file are refactors in to their respective folders
 
 ## Training guide
 

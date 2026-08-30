@@ -1,7 +1,8 @@
 <?php
-namespace app\core\db;
+namespace app\core\db\postgresql;
 
 use app\core\Application;
+use app\core\db\DBModel;
 
 /**
  * PostgreSQL-backed DBModel that automatically discovers table columns

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\core\db;
+namespace app\core\db\mssql;
 
 /**
  * Microsoft SQL Server-backed DBModel that automatically discovers

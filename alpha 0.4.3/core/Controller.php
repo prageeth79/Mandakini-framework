@@ -2,6 +2,7 @@
 
 namespace app\core;
 use app\core\Application;
+use app\core\util\Globals;
 
 
 class Controller {
@@ -20,12 +21,12 @@ class Controller {
 
 
     public function render($view, $params = []) {
-        Application::$app->view->title = $params['title'] ??  Globals::getConfig()['DEFAULT_APP_NAME'] ?? 'Mandakini';
+        Application::$app->view->title = $params['title'] ??  Globals::getConfig('DEFAULT_APP_NAME') ?? 'Mandakini';
         return Application::$app->view->renderView($view, $params);
     }
 
     public function renderViewOnly($view, $params = []) {
-        Application::$app->view->title = $params['title'] ??  Globals::getConfig()['DEFAULT_APP_NAME'] ?? 'Mandakini';
+        Application::$app->view->title = $params['title'] ??  Globals::getConfig('DEFAULT_APP_NAME') ?? 'Mandakini';
         return Application::$app->view->renderOnlyView($view, $params);
     }
 
