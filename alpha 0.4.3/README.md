@@ -1,0 +1,155 @@
+# Mandakini Framework
+
+Mandakini Framework is a beginner-friendly PHP web framework designed for fast development of database-driven applications. It offers form helpers, validation, authentication, and automatic database model handling so you can build apps quickly.
+
+## Key features
+
+- Easy PHP MVC-style structure
+- Automatic database model support
+- Built-in form rendering helpers
+- Validation rules for form data
+- Login and session management
+- Role-based access control support
+- Support for MySQL, PostgreSQL, SQL Server, and Oracle
+- Simple routing and view handling
+- Render paginated HTML tables directly from Models
+- Transaction processing support in Models. 
+
+## Supported form fields
+
+- Text input
+- Password input
+- Email input
+- Number input
+- Hidden input
+- Textarea
+- Select / dropdown
+- Checkbox
+- Radio buttons
+- File upload
+- Date and time fields
+
+## Supported operations
+
+- Automatic CRUD operations using models
+- Auto-discovery of database table metadata for supported database engines
+- `save()`, `update()`, `delete()`, `findOne()` and `findAll()` on models
+- Built-in validation and error reporting
+- File upload validation
+- User authentication and session handling
+- Route-based controller action mapping
+
+## Sample login accounts
+
+- `admin` : `admin123`
+- `instructor` : `instructor123`
+- `student` : `student123`
+
+## Installation
+
+1. Clone or download the repository.
+2. Install Composer dependencies:
+   ```bash
+   composer install
+   ```
+3. (optional) run migration to setup the database tables.
+```bash
+php migrations.php
+```
+4. Configure your database in `public/config.php`.
+5. Set your web server document root to the main folder which contains `public/` folder.
+6. Open the app in your browser.
+
+## Database support
+
+Mandakini supports multiple database engines through engine-specific model classes:
+
+- `app\core\db\MySqlDBModel`
+- `app\core\db\PostgresDBModel`
+- `app\core\db\MSSQLServerDBModel`
+- `app\core\db\OracleDBModel`
+
+These subclasses automatically detect table columns and primary keys when possible.
+
+## Project structure
+
+- `public/` – application entry point, routes, and configuration
+- `core/` – framework internals
+- `controllers/` – request handlers and page logic
+- `models/` – data models and validation
+- `views/` – HTML templates and layout files
+- `migrations/` – database migration scripts
+- `vendor/` – Composer dependencies
+
+## User manual
+
+A full user manual is available in `USERMANUAL.md` with setup instructions, examples, and detailed guidance for beginners.
+
+## Change log
+
+- 17/07/2026
+  - Added PostgreSQL support
+  - Added SQL Server support
+  - Added Oracle support
+- 21/07/2026
+  - Moved routes out of `index.php` into `public/routes.php` for cleaner structure
+  - usermanual is written it will be available soon
+  - modified the license file
+  - copyright statement adjusted
+- 08/08/2026 - Alpha 0.2
+  - minner ajustment to framework nameing convention is enforce
+  - only controller sub classess can be run. it is restricted now
+  - Labeling is done automatic now if you never specify it will create from the attribute
+- 22/08/2026 - Alpha 0.3
+  - QuerryBuilder added
+  - project adjested to use querry builder
+  - correct minor naming conventions
+- 24/08/2026
+  - data table modified to create new calulated fileds
+  - a method created to calculate them
+- 25/08/2026 - alpha 0.4
+  - paremeter urls added now parrameters canbe added as part of url and can sorted them in app acortingly.
+  - minor error fixes
+- 28/08/2026 - alpha 0.4.1
+  - model and data table conditions now can have oparations such as >, <, != etc...
+  - new utilites are added
+    - QR code genearator
+    - Barcode generator
+    - Encriptor 
+    - Report generator
+  - utilites are move to util folder
+  - utilites can be accessed by Util class
+  - miner error fix on update
+- 29/08/2026 alpha 0.4.2
+  - reporting tool redone with advance reporting
+  - report pdf support
+  - new advanced querry builder to build your querry
+  - new advance database model
+  - new advance data table
+  - data model and data table connected to query generator
+  - css seperated from data table
+  - new functionality to customize dtabase css
+  - minor bug fixes for css separation
+  - new method for finding the baseUrl() in Application
+- 30/08/2926
+  - advanced reporting system with template support
+- 31/08/2026 - Alpha 0.4.3
+  - New Column models for all databases
+    - MySQL
+    - PostgreSQL
+    - MSSQL Server
+    - Oracle
+  - no need to declare fields now these new classes define them automaticaly.
+  - Globals class has been created and it has getConfig() method
+
+## Training guide
+
+- `GUIDEBOOK.md` — full framework guide book for training, onboarding, and detailed feature explanation
+
+## Help and documentation
+
+- `HELP.md` — quick help, FAQ, troubleshooting, and quick reference
+- `USERMANUAL.md` — full beginner and developer guide
+- `README.md` — project overview and basic setup
+- `GUIDEBOOK.md` - guide book for users to crating a project
+

@@ -19,7 +19,7 @@ if ($env === 'production') {
     // Production configuration (remote database, no debug)
     $config = [
         'userClass' => \app\models\User::class,
-        'appName' => 'Mandakini',
+        'DEFAULT_APP_NAME' => 'Mandakini',
         'debug' => false,
         'db' => [
             'dsn' => 'mysql:host=prod-db.company.com;dbname=mandakini_prod',
@@ -31,7 +31,7 @@ if ($env === 'production') {
     // Staging configuration (test server, limited debug)
     $config = [
         'userClass' => \app\models\User::class,
-        'appName' => 'Mandakini Staging',
+        'DEFAULT_APP_NAME' => 'Mandakini Staging',
         'debug' => false,
         'db' => [
             'dsn' => 'mysql:host=staging-db.company.com;dbname=mandakini_stage',
@@ -43,7 +43,7 @@ if ($env === 'production') {
     // Development configuration (localhost, full debug)
     $config = [
         'userClass' => \app\models\User::class,
-        'appName' => 'Mandakini Dev',
+        'DEFAULT_APP_NAME' => 'Mandakini Dev',
         'debug' => true,
         'db' => [
             'dsn' => 'mysql:host=localhost;dbname=mandakini',
@@ -67,7 +67,7 @@ $config = [
      * Application Name
      * Used in views and email templates
      */
-    'appName' => 'Mandakini Framework 2026',
+    'DEFAULT_APP_NAME' => 'Mandakini Framework 2026',
     
     /**
      * Debug Mode
