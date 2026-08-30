@@ -238,7 +238,9 @@ class ReportController extends Controller
 // ============================================
 
 // 14. Method chaining
-$report = new \app\core\Report('Chained Report')->addColumns(['Name', 'Score', 'Grade'])->addRows([
+$report = new \app\core\Report('Chained Report')
+->addColumns(['Name', 'Score', 'Grade'])
+->addRows([
         ['Student A', 85, 'B'],
         ['Student B', 92, 'A'],
         ['Student C', 78, 'C'],

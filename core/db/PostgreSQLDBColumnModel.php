@@ -1,14 +1,15 @@
 <?php
+
 namespace app\core\db;
 
 /**
- * MySQL-backed DBModel that automatically discovers table columns
+ * PostgreSQL-backed DBModel that automatically discovers table columns
  * and provides sensible defaults for `attributes()` and `primaryKey()`.
  */
-
-abstract class MySqlDBColumnsModel extends MySqlDBModel
+abstract class PostgreSQLDBColumnsModel extends PostgreSQLDBModel
 {
-	protected const COLUMN_MODEL = true;
+    protected const COLUMN_MODEL = true;
+
     /**
      * Runtime storage for database columns.
      */
@@ -74,7 +75,7 @@ abstract class MySqlDBColumnsModel extends MySqlDBModel
     }
 
     /**
-     * Determine the default PHP value from MySQL type.
+     * Determine the default PHP value from PostgreSQL type.
      */
     protected function defaultColumnValue(
         ?string $type
@@ -86,33 +87,44 @@ abstract class MySqlDBColumnsModel extends MySqlDBModel
 
         $type = strtolower($type);
 
-        // Boolean
-        if (str_starts_with($type, 'tinyint(1)')) {
+        /*
+         * Boolean
+         */
+        if (
+            $type === 'boolean' ||
+            $type === 'bool'
+        ) {
             return false;
         }
 
-        // Integer
+        /*
+         * Integer types
+         */
         if (
-            str_contains($type, 'tinyint') ||
-            str_contains($type, 'smallint') ||
-            str_contains($type, 'mediumint') ||
-            str_contains($type, 'int') ||
-            str_contains($type, 'bigint')
+            $type === 'smallint' ||
+            $type === 'integer' ||
+            $type === 'int' ||
+            $type === 'bigint' ||
+            str_contains($type, 'int')
         ) {
             return 0;
         }
 
-        // Decimal / floating
+        /*
+         * Decimal / floating point
+         */
         if (
-            str_contains($type, 'decimal') ||
-            str_contains($type, 'numeric') ||
-            str_contains($type, 'float') ||
-            str_contains($type, 'double')
+            $type === 'numeric' ||
+            $type === 'decimal' ||
+            $type === 'real' ||
+            $type === 'double precision'
         ) {
             return 0.0;
         }
 
-        // Everything else
+        /*
+         * Everything else
+         */
         return '';
     }
 
@@ -130,33 +142,45 @@ abstract class MySqlDBColumnsModel extends MySqlDBModel
 
         $type = strtolower($type);
 
-        // Boolean
-        if (str_starts_with($type, 'tinyint(1)')) {
+        /*
+         * Boolean
+         */
+        if (
+            $type === 'boolean' ||
+            $type === 'bool'
+        ) {
             return (bool) $value;
         }
 
-        // Integer
+        /*
+         * Integer
+         */
         if (
-            str_contains($type, 'tinyint') ||
-            str_contains($type, 'smallint') ||
-            str_contains($type, 'mediumint') ||
-            str_contains($type, 'int') ||
-            str_contains($type, 'bigint')
+            $type === 'smallint' ||
+            $type === 'integer' ||
+            $type === 'int' ||
+            $type === 'bigint' ||
+            str_contains($type, 'int')
         ) {
             return (int) $value;
         }
 
-        // Floating point
+        /*
+         * Floating point / numeric
+         */
         if (
-            str_contains($type, 'decimal') ||
-            str_contains($type, 'numeric') ||
-            str_contains($type, 'float') ||
-            str_contains($type, 'double')
+            $type === 'decimal' ||
+            $type === 'numeric' ||
+            $type === 'real' ||
+            $type === 'double precision'
         ) {
             return (float) $value;
         }
 
-        // String
+        /*
+         * PostgreSQL date/time values are normally returned
+         * as strings, so leave them as strings.
+         */
         return (string) $value;
     }
 }

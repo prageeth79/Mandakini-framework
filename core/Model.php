@@ -21,13 +21,25 @@ abstract class Model {
     public const RULE_ALPHANUMARIC_PLUS_SPACE = 'alphanumaric + space';
     public array $errors = [];
 
+    protected const COLUMN_MODEL = false;
+
 
 
     public function loadData($data) {
-        
-        foreach ($data as $key => $value) {            
-            if (property_exists($this, $key)) {
-                $this->{$key} = $value;
+    
+        if(static::COLUMN_MODEL){            
+            foreach ($data as $key => $value) {           
+                if (array_key_exists($key, $this->columnData)) {
+                    $types = $this->getColumnTypes();
+                    $this->{$key} = $this->castColumnValue($value, $types[$key] );
+                }
+            }
+            //echo "loadData: " . get_class($this) . " : " . json_encode($this->columnData) . "\n";
+        }else{
+            foreach ($data as $key => $value) {            
+                if (property_exists($this, $key)) {
+                    $this->{$key} = $value;
+                }
             }
         }
     }

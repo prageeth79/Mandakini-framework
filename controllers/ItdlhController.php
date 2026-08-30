@@ -248,15 +248,17 @@ class ItdlhController extends Controller
         $model = (new CourseOnWeb())::findOne(['course_id'=>$newId]);
   
         $dataTable = new DBTable($model, $page, 3);
-        $dataTable->updateUrl('/public/courses/edit?id={id}&page=' . $page, '/public/courses/delete?id={id}&page=' . $page,'/public/courses/view?id={id}&page=' . $page);
+        $dataTable->updateUrl('/public/courses/edit/{id}?page=' . $page, '/public/courses/delete/{id}?page=' . $page,'/public/courses/view/{id}?page=' . $page);
         if ($request->isPost()) {
             $model->loadData($request->getBody());
             
             $upload = $this->check_upload($model);
+             //print_r($model);
+             
 
             if ($model->validate() && $model->update(['course_id' => $newId]) && $upload) {
                 Application::$app->session->setFlash('success', 'Coure Edited Successfully');
-                Application::$app->response->redirect('/public/courses/edit?id=' . $id . "&page=" . $page);
+                Application::$app->response->redirect('/public/courses/edit/' . $id . "?page=" . $page);
                 return;
             }else{
                 Application::$app->session->setFlash('error', 'Error adding data to database');
@@ -311,7 +313,7 @@ class ItdlhController extends Controller
         if ($request->isPost()) {
             $model->loadData($request->getBody());
             
-            if ($model->validate() && $model->save()) {
+            if ($model->validate() && $model->update(['category_id' => $newId])) {
                 Application::$app->response->redirect('/public/courses/category/add');
                 return;
             }

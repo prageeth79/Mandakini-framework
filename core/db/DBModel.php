@@ -324,7 +324,6 @@ abstract class DBModel extends Model
         foreach ($this->attributes() as $attribute) {
             $data[$attribute] = $this->{$attribute};
         }
-
         return $query->update($data);
     }
 

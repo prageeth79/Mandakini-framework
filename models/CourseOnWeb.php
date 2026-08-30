@@ -1,10 +1,11 @@
 <?php 
 namespace app\models;
-use app\core\db\MySqlDBModel;
+use app\core\db\MySqlDBColumnsModel;
 use app\core\db\DBModel;
 use app\core\Util;
 
-class CourseOnWeb extends MySqlDBModel{
+class CourseOnWeb extends MySqlDBColumnsModel{
+    /*
     public string $course_id = '';
     public string $course_name = '';
     public string $course_image_land = '';
@@ -19,7 +20,7 @@ class CourseOnWeb extends MySqlDBModel{
     public string $course_category = '';
     public string $extra = '';
     public bool $is_active = true;
-
+    */
     public const RULE_ALLOWED_FILETYPE = 'allow File Types';
 
     public static function tableName(): string{
