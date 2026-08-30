@@ -3,10 +3,12 @@ namespace app\core\util\Report\Renderer;
 use app\core\util\Report;
 class CsvRenderer {
     public function render(Report $report): string {
-        $stream=fopen('php://temp','w+'); if($stream===false) throw new \RuntimeException('Unable to create CSV stream.');
-        $columns=$report->getColumns(); fputcsv($stream,array_map(fn($c)=>$c['label'],$columns));
-        foreach($report->getProcessedRows() as $row){$values=[];foreach($columns as $c)$values[]=$report->getRowValue($row,$c['key']);fputcsv($stream,$values);}
-        if($report->calculateAggregates()){fputcsv($stream,[]);foreach($report->calculateAggregates() as $k=>$v)fputcsv($stream,[$k,$v]);}
-        rewind($stream);$csv=stream_get_contents($stream);fclose($stream);return "\xEF\xBB\xBF".($csv?:'');
+        $h = fopen('php://temp', 'r+');
+        $columns = array_values(array_filter($report->getColumns(), fn($c) => ($c['visible'] ?? true) !== false));
+        fputcsv($h, array_map(fn($c) => $c['label'], $columns));
+        foreach ($report->getProcessedRows() as $row) fputcsv($h, array_map(fn($c) => $report->formatValue($report->getRowValue($row, $c['key']), $c), $columns));
+        if ($report->getSummary()) { fputcsv($h, []); foreach ($report->getSummary() as $k=>$v) fputcsv($h, [$k,$v]); }
+        if ($report->calculateAggregates()) { fputcsv($h, []); foreach ($report->calculateAggregates() as $k=>$v) fputcsv($h, [$k,$v]); }
+        rewind($h); $out=stream_get_contents($h); fclose($h); return $out;
     }
 }

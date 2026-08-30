@@ -182,7 +182,7 @@ $report->exportHTML('public/reports/payroll.html');
 // CONTROLLER USAGE
 // ============================================
 
-/*
+
 // In controllers/ReportController.php:
 class ReportController extends Controller
 {
@@ -231,7 +231,7 @@ class ReportController extends Controller
         return 'Report exported successfully';
     }
 }
-*/
+
 
 // ============================================
 // CHAINING OPERATIONS

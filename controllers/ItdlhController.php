@@ -209,7 +209,7 @@ class ItdlhController extends Controller
     {
         $model = new CourseOnWeb();
         $page = intval($request->getValues()['get']['page'] ?? 1);
-        $dataTable = new DBTable($model, $page, 25);
+        $dataTable = new DBTable($model, $page, 3);
 
         $dataTable->updateUrl('/public/courses/edit/{id}?page=' . $page, '/public/courses/delete/{id}?page=' . $page,'/public/courses/view/{id}?page=' . $page);
         if ($request->isPost()) {
@@ -247,7 +247,7 @@ class ItdlhController extends Controller
         $newId = htmlspecialchars($id, ENT_QUOTES, 'UTF-8');
         $model = (new CourseOnWeb())::findOne(['course_id'=>$newId]);
   
-        $dataTable = new DBTable($model, $page, 25);
+        $dataTable = new DBTable($model, $page, 3);
         $dataTable->updateUrl('/public/courses/edit?id={id}&page=' . $page, '/public/courses/delete?id={id}&page=' . $page,'/public/courses/view?id={id}&page=' . $page);
         if ($request->isPost()) {
             $model->loadData($request->getBody());
@@ -283,8 +283,8 @@ class ItdlhController extends Controller
 
 
         
-        $dataTable = new DBTable($model, $page, 25);
-        $dataTable->updateUrl('courses/catetory/edit?id={id}&page=' . $page, 'courses/caterory/delete?id={id}&page=' . $page,'courses/category/view?id={id}&page=' . $page);
+        $dataTable = new DBTable($model, $page, 3);
+        $dataTable->updateUrl('/public/courses/category/edit/{id}?page=' . $page, '/public/courses/category/delete/{id}?page=' . $page,'/public/courses/category/view/{id}?page=' . $page);
         if ($request->isPost()) {
             $model->loadData($request->getBody());
             
@@ -299,11 +299,15 @@ class ItdlhController extends Controller
         ]);
     }
     public function edit_categoryAction(Request $request){
-        $model = new CourseCategory();
-        $page = intval($request->getBody()['page'] ?? 1);
+        $id = $request->getValues()['get']['id'];
+        $page = $request->getValues()['get']['page'] ?? 1;
+        $newId = htmlspecialchars($id, ENT_QUOTES, 'UTF-8');
+        $model = (new CourseCategory())::findOne(['category_id'=>$newId]);
+        //$model = (new CourseCategory())::findOne(['category_id'=>$request->getBody()['id']]);
+        //$page = intval($request->getBody()['page'] ?? 1);
         
-        $dataTable = new DBTable($model, $page, 25);
-        $dataTable->updateUrl('courses/catetory/edit?id={id}&page=' . $page, 'courses/caterory/delete?id={id}&page=' . $page,'courses/category/view?id={id}&page=' . $page);
+        $dataTable = new DBTable($model, $page, 3);
+        $dataTable->updateUrl('/public/courses/category/edit/{id}?page=' . $page, '/public/courses/category/delete/{id}?page=' . $page,'/public/courses/category/view/{id}?page=' . $page);
         if ($request->isPost()) {
             $model->loadData($request->getBody());
             

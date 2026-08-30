@@ -49,10 +49,12 @@ $app->router->get('/courses/add/{id}', [ItdlhController::class, 'add_courses']);
 $app->router->post('/courses/add', [ItdlhController::class, 'add_courses']);
 $app->router->get('/courses/category/add', [ItdlhController::class, 'add_category']);
 $app->router->post('/courses/category/add', [ItdlhController::class, 'add_category']);
+$app->router->post('/courses/category/edit/{id}', [ItdlhController::class, 'edit_category']);
+$app->router->get('/courses/category/edit/{id}', [ItdlhController::class, 'edit_category']);
 
 $app->router->get('/courses/edit', [ItdlhController::class, 'edit_courses']);
 $app->router->get('/courses/edit/{id}', [ItdlhController::class, 'edit_courses']);
-$app->router->post('/courses/edit', [ItdlhController::class, 'edit_courses']);
+$app->router->post('/courses/edit/{id}', [ItdlhController::class, 'edit_courses']);
 
 // Protected download routes for course content (serve via controller)
 $app->router->get('/itdlh/course/mso/download', [ItdlhController::class, 'download']);

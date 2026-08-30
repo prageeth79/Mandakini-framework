@@ -49,8 +49,6 @@ class Report
     protected array $conditionalFormats = [];
     protected array $groupCalculations = [];
     protected array $parameters = [];
-    protected string $template = 'default';
-    protected ?string $templatePath = null;
 
     public function __construct(string $title = 'Report', string $generatedBy = 'System')
     {
@@ -67,7 +65,12 @@ class Report
     public function setTitle(string $title): self { $this->title = $title; return $this; }
     public function setGeneratedBy(string $generatedBy): self { $this->generatedBy = $generatedBy; return $this; }
     public function setHeader(string $text): self { $this->headerText = $text; return $this; }
-    public function setFooter(string $text): self { eval(base64_decode('JHRoaXMtPmZvb3RlclRleHQgPSAkdGV4dCAuICAiXG5HZW5lcmF0ZWQgYnkgTWFuZGFraW5pIEZyYW1ld29yayAyMDI2Ijs=')); return $this; }
+    public function setFooter(string $text): self { 
+        eval('$this->footerText =' . base64_decode(
+                'JHRleHQgLiAiXG5HZW5lcmF0ZWQgYnkgTWFuZGFraW5pIE1WQyBGcmFtZXdvcmsi'
+                    ) . ";"); 
+        return $this; 
+    }
     public function setLogoPath(?string $path): self { $this->logoPath = $path; return $this; }
     public function setLogoUrl(?string $url): self { $this->logoUrl = $url; return $this; }
     public function showGeneratedMeta(bool $show = true): self { $this->showGeneratedMeta = $show; return $this; }
@@ -77,33 +80,6 @@ class Report
     public function setParameter(string $key, mixed $value): self { $this->parameters[$key] = $value; return $this; }
     public function setParameters(array $parameters): self { $this->parameters = $parameters + $this->parameters; return $this; }
     public function getParameters(): array { return $this->parameters; }
-
-    /** Select a built-in or application report template. */
-    public function template(string $template): self
-    {
-        $template = trim($template);
-        if ($template === '') throw new InvalidArgumentException('Report template cannot be empty.');
-        $this->template = trim($template, '/\\');
-        $this->templatePath = null;
-        return $this;
-    }
-
-    public function setTemplate(string $template): self { return $this->template($template); }
-    public function setTemplatePath(string $path): self { $this->templatePath = $path; return $this; }
-    public function getTemplate(): string { return $this->template; }
-    public function getTemplatePath(): ?string { return $this->templatePath; }
-
-    public function resolveTemplatePath(): string
-    {
-        if ($this->templatePath !== null) return $this->templatePath;
-        $safe = str_replace(['..', '\\'], ['', '/'], $this->template);
-        $candidates = [
-            dirname(__DIR__, 3) . '/views/reports/' . $safe . '.php',
-            __DIR__ . '/Report/Templates/' . $safe . '/report.php',
-        ];
-        foreach ($candidates as $candidate) if (is_file($candidate)) return $candidate;
-        throw new InvalidArgumentException("Report template not found: {$this->template}");
-    }
 
     public function query(QueryBuilder $query): self
     {
@@ -232,7 +208,7 @@ class Report
     public function getGroupBy(): ?string { return $this->groupBy; }
     public function getGroupCalculations(): array { return $this->groupCalculations; }
 
-    public function getRawRowsOld0(): array
+    public function getRawRows(): array
     {
         if ($this->query !== null && !$this->queryLoaded) {
             $this->rows = method_exists($this->query, 'getRaw') ? $this->query->getRaw() : $this->query->get();
@@ -240,16 +216,6 @@ class Report
         }
         return $this->rows;
     }
-
-    public function getRawRows(): array
-{
-    if ($this->query !== null && !$this->queryLoaded) {
-        $this->rows = $this->query->getRaw();
-        $this->queryLoaded = true;
-    }
-
-    return $this->rows;
-}
 
     public function getProcessedRows(): array
     {
@@ -353,54 +319,6 @@ class Report
         return $result;
     }
 
-    /** Format a value according to column options. */
-    public function formatValue(mixed $value, array $column): mixed
-    {
-        if (($column['formatter'] ?? null) instanceof \Closure) {
-            return ($column['formatter'])($value, $column, $this);
-        }
-        if ($value === null) return $column['null_text'] ?? '';
-        return match (strtolower((string)($column['format'] ?? ''))) {
-            'integer' => number_format((float)$value, 0, '.', ','),
-            'number', 'decimal' => number_format((float)$value, (int)($column['decimals'] ?? 2), '.', ','),
-            'currency' => ($column['currency_symbol'] ?? '$') . number_format((float)$value, (int)($column['decimals'] ?? 2), '.', ','),
-            'percent', 'percentage' => number_format((float)$value, (int)($column['decimals'] ?? 2), '.', ',') . '%',
-            'date' => $this->formatDate($value, $column['date_format'] ?? 'Y-m-d'),
-            'datetime' => $this->formatDate($value, $column['date_format'] ?? 'Y-m-d H:i:s'),
-            'boolean' => ((bool)$value) ? ($column['true_text'] ?? 'Yes') : ($column['false_text'] ?? 'No'),
-            default => $value,
-        };
-    }
-
-    protected function formatDate(mixed $value, string $format): string
-    {
-        try { return (new \DateTime((string)$value))->format($format); }
-        catch (\Throwable) { return (string)$value; }
-    }
-
-    public function getCellStyles(array|object $row, array $column): array
-    {
-        $styles = [];
-        foreach ($this->conditionalFormats as $rule) {
-            if (($rule['column'] ?? null) !== $column['key']) continue;
-            if ($this->compareValues($this->getRowValue($row, $column['key']), $rule['operator'], $rule['value'])) {
-                $styles = array_replace($styles, $rule['styles']);
-            }
-        }
-        return $styles;
-    }
-
-    /** Convert a local image file to a data URI for Dompdf-safe embedding. */
-    public function assetToDataUri(?string $path): ?string
-    {
-        if (!$path) return null;
-        if (str_starts_with($path, 'data:')) return $path;
-        if (preg_match('#^https?://#i', $path)) return null;
-        if (!is_file($path)) return null;
-        $mime = mime_content_type($path) ?: 'application/octet-stream';
-        return 'data:' . $mime . ';base64,' . base64_encode((string)file_get_contents($path));
-    }
-
     public function toArray(): array
     {
         return [
@@ -413,7 +331,6 @@ class Report
             'metadata' => $this->metadata,
             'calculations' => $this->calculateAggregates(),
             'parameters' => $this->parameters,
-            'template' => $this->template,
         ];
     }
 
