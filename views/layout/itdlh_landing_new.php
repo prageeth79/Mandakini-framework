@@ -10,6 +10,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ITDLH Kelaniya - Practical IT courses for students in Sri Lanka. Learn programming, web development, databases and more.">
+    <meta name="keywords" content="ITDLH, Kelaniya, IT courses, programming, web development, databases, Sri Lanka">
+    <meta name="author" content="B.D.P. Niranjan">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#1e3c72">
+    <link rel="icon" href="<?php echo $this->asset('../logo.png'); ?>" type="image/x-icon">
     <title><?php echo $this->title; ?></title>
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
@@ -145,9 +151,14 @@
     <header class="hero main-inner text-center text-md-start">
       <div class="container">
         <div class="row align-items-center">
-          <div class="col-md-8">
-            <h1 class="display-5 mb-2 text-white">ITDLH Kelaniya</h1>
-            <p class="lead text-white-50 mb-0 fs-5">Practical IT courses for students — programming, web, databases and more.</p>
+          <div class="col-md-8 align-items-center d-flex flex-column flex-md-row justify-content-center justify-content-md-start gap-3">
+            <div class="row col-md-2 mb-3 d-none d-md-flex justify-content-center justify-content-md-start">
+              <img src="<?php echo $this->asset('../logo.png'); ?>" alt="ITDLH Logo" class="img-fluid shadow-sm" style="max-height: 120px; border-radius: 25%;">
+            </div>
+            <div class="row col-md-8">
+              <h1 class="display-5 mb-2 text-white">ITDLH Kelaniya</h1>
+              <p class="lead text-white-50 mb-0 fs-5">Practical IT courses for students — programming, web, databases and more.</p>
+            </div>
           </div>
           <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <a class="btn btn-info fw-bold rounded-pill px-4 shadow-sm" href="<?php echo $this->asset('register'); ?>">Join a Course</a>

@@ -40,7 +40,32 @@ $logoData = $asset($logo);
             </tr>
         </thead>
         <tbody>
-<?php if($hasGrouping): foreach($groups as $group): ?><tr class="group-row"><td colspan="<?= count($columns) ?>"><?= $escape($group['key']) ?></td></tr><?php foreach($group['rows'] as $row): ?><tr><?php foreach($columns as $column): ?><td style="text-align:<?= $escape($column['align'] ?? 'left') ?>;<?php foreach($cellStyle($row,$column) as $sk=>$sv): echo $escape($sk).':'.$escape($sv).';'; endforeach; ?>"><?= $escape($format($value($row,$column['key']),$column)) ?></td><?php endforeach; ?></tr><?php endforeach; ?><?php if($group['calculations']): ?><tr class="group-total"><td colspan="<?= count($columns)-1 ?>">Group total</td><td><?= $escape(json_encode($group['calculations'], JSON_UNESCAPED_UNICODE)) ?></td></tr><?php endif; ?><?php endforeach; else: foreach($rows as $row): ?><tr><?php foreach($columns as $column): ?><td style="text-align:<?= $escape($column['align'] ?? 'left') ?>;<?php foreach($cellStyle($row,$column) as $sk=>$sv): echo $escape($sk).':'.$escape($sv).';'; endforeach; ?>"><?= $escape($format($value($row,$column['key']),$column)) ?></td><?php endforeach; ?></tr><?php endforeach; endif; ?>
+<?php if($hasGrouping): foreach($groups as $group): ?>
+    <tr class="group-row">
+        <td colspan="<?= count($columns) ?>"><?= $escape($group['key']) ?></td>
+    </tr><?php foreach($group['rows'] as $row): ?>
+        <tr>
+        <?php foreach($columns as $column): ?>
+            <td style="text-align:<?= $escape($column['align'] ?? 'left') ?>;
+            <?php foreach($cellStyle($row,$column) as $sk=>$sv): echo $escape($sk).':'.$escape($sv).';'; endforeach; ?>">
+            <?= $escape($format($value($row,$column['key']),$column)) ?>
+        </td>
+        <?php endforeach; ?>
+    </tr>
+    <?php endforeach; ?><?php if($group['calculations']): ?>
+        <tr class="group-total">
+            <td colspan="<?= count($columns)-1 ?>">Group total</td>
+            <td><?= $escape(json_encode($group['calculations'], JSON_UNESCAPED_UNICODE)) ?></td>
+        </tr>
+        <?php endif; ?>
+        <?php endforeach; else: foreach($rows as $row): ?>
+            <tr><?php foreach($columns as $column): ?>
+                <td style="text-align:<?= $escape($column['align'] ?? 'left') ?>;
+                <?php foreach($cellStyle($row,$column) as $sk=>$sv): echo $escape($sk).':'.$escape($sv).';'; endforeach; ?>">
+                <?= $escape($format($value($row,$column['key']),$column)) ?>
+            </td><?php endforeach; ?>
+        </tr>
+        <?php endforeach; endif; ?>
 </tbody>
 </table>
 <?php if($summary || $calculations): ?>

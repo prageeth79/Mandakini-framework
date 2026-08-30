@@ -52,8 +52,8 @@ exit;
             ->setPageSize('A4')->setPageOrientation('portrait')
             ->setHeader('ABC School')->setFooter('Report by B.D.P. Niranjan')
             ->setStyles(['font_size'=>'10px','accent'=>'#333','header_background'=>'#eeeeee'])
-            ->showPageNumbers(true);
-
+            ->showPageNumbers(true)
+            ->setLogoPath(__DIR__ . '/../logo.png');
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="courses.pdf"');
         echo $report->pdf();
@@ -89,7 +89,8 @@ exit;
             ->addCalculation('Total', 'amount', 'SUM')
             ->addCalculation('Average', 'amount', 'AVG')
             ->setHeader('Demo Company')
-            ->setFooter('Report by B.D.P. Niranjan');
+            ->setFooter('Report by B.D.P. Niranjan')
+            ->setLogoPath(__DIR__ . '/../logo.png');
 
 
         $pdf = $report->pdf();
