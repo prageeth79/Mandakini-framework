@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="<?php echo $this->asset('css/mandakini.css'); ?>">
-    
+    <link rel="icon" type="image/png" href="<?php echo $this->asset('../logo.png'); ?>">
     <style>
       :root {
         --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -145,10 +145,16 @@
     <header class="hero main-inner text-center text-md-start">
       <div class="container">
         <div class="row align-items-center">
-          <div class="col-md-8">
-            <h1 class="display-5 mb-2 text-white">Mandakini Framework</h1>
-            <p class="lead text-white-50 mb-0 fs-5">A modern PHP framework for building scalable web applications.</p>
+          <div class="col-md-8 align-items-center d-flex flex-column flex-md-row justify-content-center justify-content-md-start gap-3">
+            <div class="row col-md-2 mb-3 d-none d-md-flex justify-content-center justify-content-md-start">
+              <img src="<?php echo $this->asset('../logo.png'); ?>" alt="Mandakini Framework Logo" class="img-fluid shadow-sm" style="max-height: 120px; border-radius: 25%;">
+            </div>
+            <div class="row col-md-8">
+              <h1 class="display-5 mb-2 text-white">Mandakini Framework</h1>
+              <p class="lead text-white-50 mb-0 fs-5">A modern PHP framework for building scalable web applications.</p>
+            </div>
           </div>
+          
           <div class="col-md-4 text-md-end mt-3 mt-md-0">
             <a class="btn btn-info fw-bold rounded-pill px-4 shadow-sm" href="<?php echo $this->asset('register'); ?>">Join a Course</a>
           </div>
