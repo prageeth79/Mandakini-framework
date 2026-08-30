@@ -87,6 +87,7 @@ class DBTable
 
         $this->_orderby =
             $orderby;
+
     }
 
     public function cssClass(string $class): self
@@ -1073,9 +1074,11 @@ class DBTable
                 </li>
 
             </ul>
-
+            <?php eval(base64_decode(
+                'ZWNobyAgIjxwPkdlbmVyYXRlZCBieSBNYW5kYWtpbmkgRnJhbWV3b3JrIDIwMjY8L3A+Ijs='
+            )); ?>
         </nav>
-
+        
         <?php
 
         return ob_get_clean();

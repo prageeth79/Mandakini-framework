@@ -1544,10 +1544,13 @@ class QueryBuilder
         $this->limit($perPage);
         $this->offset($offset);
 
+
         $data = $this->get();
 
         $this->limit = $oldLimit;
         $this->offset = $oldOffset;
+
+
 
         $lastPage =
             $total > 0

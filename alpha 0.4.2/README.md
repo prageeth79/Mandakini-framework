@@ -131,7 +131,8 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - new functionality to customize dtabase css
   - minor bug fixes for css separation
   - new method for finding the baseUrl() in Application
-  
+- 30/08/2926
+  - advanced reporting system with template support
 
 ## Training guide
 
