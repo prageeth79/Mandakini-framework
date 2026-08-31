@@ -31,9 +31,10 @@ class Application {
         $this->db = new Database($config['db']);
         $this->session = new Session();
         $this->userClass = $config['userClass'] ?? UserModel::class;
-        $this->appName = $config['appName'] ?? 'Mandakini';
+        $this->appName = $config['DEFAULT_APP_NAME'] ?? 'Mandakini Framework';
         $this->view = new View();
-        $this->debug = $config['debug'] ?? false;
+        $this->debug = $config['ENV'] === 'development';
+        $this->layout = $config['DEFAULT_LAYOUT'] ?? 'main';
         $primaryValue = $this->session->get('user');
         if ($this->debug) {
             error_reporting(E_ALL);

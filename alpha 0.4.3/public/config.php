@@ -68,6 +68,8 @@ $config = [
      * Used in views and email templates
      */
     'DEFAULT_APP_NAME' => 'Mandakini Framework 2026',
+    'DEFAULT_APP_VERSION' => '0.4.3',
+    'DEFAULT_LAYOUT' => 'mandakini_layout',
     
     /**
      * Debug Mode
