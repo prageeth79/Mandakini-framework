@@ -75,6 +75,7 @@ $config = [
      * Set to false in production to hide sensitive error information
      */
     'debug' => true,
+    'ENV' => 'production', // Change to 'production' in production environment, 'development' in development environment    
     
     /**
      * Database Configuration

@@ -1,6 +1,6 @@
 <?php
 namespace app\core;
-
+#[\AllowDynamicProperties]
 abstract class Model {
     public const RULE_REQUIRED = 'required';
     public const RULE_EMAIL = 'email';

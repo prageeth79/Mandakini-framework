@@ -5,11 +5,7 @@ use app\core\util\Report;
 use app\models\Student;
 use app\core\Request;
 class ReportController extends Controller {
-    public function marksAction(): void {
-        error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-    
+    public function marksAction(): void {    
         $report=Report::make('Student Marks Report','Admin')
             ->query(Student::query()->select(['students.full_name AS student_name','marks.class_name','marks.maths','marks.science','marks.english'])->join('marks','marks.student_id','=','students.id')->orderBy('marks.class_name')->orderBy('students.name'))
             ->addColumn('student_name','Student')
