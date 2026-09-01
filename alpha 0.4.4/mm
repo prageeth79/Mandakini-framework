@@ -3,9 +3,9 @@
 
 use app\core\Application;
 use app\core\cli\Console;
+use app\core\db\Database;
 use app\core\cli\MakeModelCommand;
 use app\core\cli\MakeControllerCommand;
-use app\core\db\Database;
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/public/config.php';

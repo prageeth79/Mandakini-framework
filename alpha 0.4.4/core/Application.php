@@ -6,7 +6,7 @@ use app\core\db\DBModel;
 class Application {
 
     public string $layout = 'main';
-    public string $appName = 'Mandakini';
+    public string $appName = 'Mandakini Framework';
     public string $userClass;
     public static string $ROOT_DIR;
     public Router $router;
@@ -19,7 +19,7 @@ class Application {
     public ?View $view;
     public bool $debug = false;
 
-    public Database $db;
+    public ?Database $db = null;
 
     public function __construct($rootPath, array $config) {
         self::$ROOT_DIR = $rootPath;
@@ -28,7 +28,7 @@ class Application {
         $this->request = new Request();
         $this->response = new Response();
         $this->router = new Router($this->request, $this->response);
-        $this->db = new Database($config['db']);
+        $this->db = $this->createDatabase($config['db'] ?? null);
         $this->session = new Session();
         $this->userClass = $config['userClass'] ?? UserModel::class;
         $this->appName = $config['DEFAULT_APP_NAME'] ?? 'Mandakini Framework';
@@ -59,6 +59,23 @@ class Application {
             $this->user = null;
         }
         
+    }
+
+    protected function createDatabase(?array $dbConfig): ?Database
+    {
+        if (empty($dbConfig['dsn'])) {
+            return null;
+        }
+
+        try {
+            return new Database($dbConfig);
+        } catch (\Throwable $e) {
+            if (PHP_SAPI === 'cli') {
+                fwrite(STDERR, "\033[33m[WARN]\033[0m Database connection unavailable: " . $e->getMessage() . PHP_EOL);
+                fwrite(STDERR, "\033[33m[WARN]\033[0m Configure MySQL/PostgreSQL and restart the app to use DB-backed features.\n");
+            }
+            return null;
+        }
     }
 
     public function setController(Controller $controller) {
