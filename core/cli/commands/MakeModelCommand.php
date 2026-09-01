@@ -20,8 +20,14 @@ class MakeModelCommand implements CommandInterface
             return 1;
         }
 
+        $db = Application::$app->db ?? null;
+        if (!$db) {
+            echo "\033[31m[ERROR]\033[0m Database connection is not available. Start MySQL/PostgreSQL and try again.\n";
+            return 1;
+        }
+
         if ($tableArg === '--all') {
-            $pdo = Application::$app->db->pdo;
+            $pdo = $db->pdo;
             $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
 
             $sql = match ($driver) {
