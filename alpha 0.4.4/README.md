@@ -148,6 +148,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - refactor all model classes into implementing an interface and use it on model so only DBModel is the only one now needed.
   - the database type is auto matically detected and DBModel use driver to find it and initialize.
   - command line tool is created for crating models and Controllers
+  - Sqlite database suupport added
 
 ## Training guide
 
