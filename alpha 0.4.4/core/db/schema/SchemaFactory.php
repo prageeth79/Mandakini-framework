@@ -15,7 +15,7 @@ class SchemaFactory {
             'sqlite' => new SqliteSchemaReflector(),
             'sqlsrv' => new SqlServerSchemaReflector(),
             'oci'   => new OracleSchemaReflector(),
-            default  => throw new RuntimeException("Unsupported PDO driver for SchemaReflector: {$driver}"),
+            default  => new DefaultSchemaReflector()
         };
     }
 
@@ -28,7 +28,7 @@ class SchemaFactory {
             'sqlite' => new SqliteTypeCaster(),
             'sqlsrv' => new SqlServerTypeCaster(),
             'oci'   => new OracleTypeCaster(),
-            default  => throw new RuntimeException("Unsupported PDO driver for TypeCaster: {$driver}"),
+            default  => new DefaultTypeCaster(),
         };
     }
 }
