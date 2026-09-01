@@ -24,5 +24,9 @@ class Util{
         return new util\Report($title, $author, $subject, $keywords);
     }
 
+    public static function Csrf(){
+        return new util\Csrf();
+    }
+
     
 }

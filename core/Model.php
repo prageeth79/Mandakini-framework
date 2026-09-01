@@ -1,6 +1,6 @@
 <?php
 namespace app\core;
-
+#[\AllowDynamicProperties]
 abstract class Model {
     public const RULE_REQUIRED = 'required';
     public const RULE_EMAIL = 'email';
@@ -21,25 +21,21 @@ abstract class Model {
     public const RULE_ALPHANUMARIC_PLUS_SPACE = 'alphanumaric + space';
     public array $errors = [];
 
-    protected const COLUMN_MODEL = false;
+    protected const COLUMN_MODEL = true;
 
 
 
     public function loadData($data) {
     
-        if(static::COLUMN_MODEL){            
-            foreach ($data as $key => $value) {           
-                if (array_key_exists($key, $this->columnData)) {
-                    $types = $this->getColumnTypes();
-                    $this->{$key} = $this->castColumnValue($value, $types[$key] );
-                }
-            }
-            //echo "loadData: " . get_class($this) . " : " . json_encode($this->columnData) . "\n";
-        }else{
-            foreach ($data as $key => $value) {            
-                if (property_exists($this, $key)) {
-                    $this->{$key} = $value;
-                }
+        foreach ($data as $key => $value) {
+            // DB-backed models may use dynamic column storage instead of declared properties.
+            // Assign through the property setter so both native and dynamic fields are hydrated.
+            
+            if (property_exists($this, $key) || method_exists($this, '__set')) {
+                $this->{$key} = $value;
+            }elseif(static::COLUMN_MODEL){
+                $this->{$key} = $value;
+
             }
         }
     }

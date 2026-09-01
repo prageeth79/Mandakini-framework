@@ -1,8 +1,8 @@
 <?php
 namespace app\models;
-use app\core\db\mysql\MySqlDBModel;
+use app\core\db\DBModel;
 
-class CourseCategory extends MySqlDBModel{
+class CourseCategory extends DBModel{
     public string $category_id = '';
     public string $category_name = '';
 

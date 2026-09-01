@@ -1,10 +1,9 @@
 <?php 
 namespace app\models;
-use app\core\db\mysql\MySqlDBColumnsModel;
 use app\core\db\DBModel;
 use app\core\Util;
 
-class CourseOnWeb extends MySqlDBColumnsModel{
+class CourseOnWeb extends DBModel{
     /*
     public string $course_id = '';
     public string $course_name = '';

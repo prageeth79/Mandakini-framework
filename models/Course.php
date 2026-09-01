@@ -3,9 +3,8 @@
 namespace app\models;
 
 use app\core\db\DBModel;
-use app\core\db\mysql\MySqlDBModel;
 
-class Course extends MySqlDBModel {
+class Course extends DBModel {
 
     public CourseCategory $category;
     public string $course_name = '';

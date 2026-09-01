@@ -2,9 +2,9 @@
 
 namespace app\models;
 
-use app\core\db\mysql\MySqlDBModel;
+use app\core\db\mysql\DBModel;
 
-class Student extends MySqlDBModel
+class Student extends DBModel
 {
     public static function tableName(): string
     {

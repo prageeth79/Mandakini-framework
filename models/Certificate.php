@@ -2,9 +2,9 @@
 
 namespace app\models;
 
-use app\core\db\mysql\MySqlDBModel;
+use app\core\db\DBModel;
 
-class Certificate extends MySqlDBModel{
+class Certificate extends DBModel{
 
     public function tableName(): string{
         return "certificate";
