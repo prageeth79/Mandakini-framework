@@ -143,7 +143,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - Globals class has been created and it has getConfig() method
   - specific database class file are refactors in to their respective folders
   - minor bug fixes
-- 01/09/2026
+- 01/09/2026 - Alpha 0.4.4
   - csrf validation added
   - refactor all model classes into implementing an interface and use it on model so only DBModel is the only one now needed.
   - the database type is auto matically detected and DBModel use driver to find it and initialize.
