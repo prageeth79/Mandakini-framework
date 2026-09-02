@@ -8,7 +8,7 @@ class MakeControllerCommand implements CommandInterface {
     public function getDescription(): string {
         return "Generates a new Controller class in app/controllers. 
         \t\tUsage: make:controller <Name>
-        \t\t     : make:controller <controller_name>/<model_name> <table_name>";
+        \t\t     : make:controller <controller_name>/<model_name>[/<view_name>] <table_name>";
     }
 
     public function execute(array $args): int {
@@ -53,13 +53,18 @@ PHP;
     private function generateControllerAndModel(string $name, string $tableName): int {
         $nameParts = explode('/', $name);
         
-        if(count($nameParts) !== 2) {
+        if(count($nameParts) !== 2 || count($nameParts) !== 3) {
             echo "\033[31m[ERROR]\033[0m Invalid format. Usage: php mm make:controller <controller_name>/<model_name> <table_name>\n";
             return 1;
         }else{
             $controllerName = ucfirst($nameParts[0]) . 'Controller';
             $modelName = ucfirst($nameParts[1]);
+            if(count($nameParts) == 3){
+                $viewName = $nameParts[2];
+            }
+            else{
             $viewName = lcfirst($modelName);
+            }
             //$tableName = $args[1] ?? null;
 
             if (!$tableName) {
