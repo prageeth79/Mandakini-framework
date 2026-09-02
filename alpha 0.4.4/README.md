@@ -155,6 +155,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
         ```bash
           php mm help
         ```
+    - minor bug fixes
       
 
 ## Training guide
