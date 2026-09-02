@@ -94,9 +94,16 @@ class MakeModelCommand implements CommandInterface
                 str_contains($dbType, 'json') => 'array',
                 default => 'string',
             };
+            $defaultValue = match ($phpType) {
+                'int' => '0',
+                'bool' => 'false',
+                'float' => '0.0',
+                'array' => '[]',
+                default => "''",
+            };
             $propertyDocBlocks[] = " * @property {$phpType} \${$column}";
             $rules[] = "            '{$column}' => [self::RULE_REQUIRED],"; // Example rule, you can customize this based on your needs
-            $columns[] = "    public {$phpType} \${$column};";
+            $columns[] = "    public {$phpType} \${$column} = {$defaultValue};";
             $this->columns[] = $column;
             $this->rules[$column] = ['required']; // Example rule, you can customize this based on your needs   
             $this->labels[$column] = ucfirst(str_replace('_', ' ', $column)); // Example label, you can customize this based on your needs

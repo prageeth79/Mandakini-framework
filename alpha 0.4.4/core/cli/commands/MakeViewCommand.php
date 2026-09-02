@@ -47,9 +47,17 @@ class MakeViewCommand implements CommandInterface{
             <h1>Create/edit an {$modelName}</h1>
             <?php \$form = \app\core\\form\Form::begin('', 'post') ?>
                 {$fieldsVar}
-                <br>
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <br>
+                
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <button type="submit" name="btnNew" class="btn btn-primary">New</button>
+                            <button type="submit" name="btnSave" class="btn btn-primary">Save</button>
+                            <button type="submit" name="btnUpdate" class="btn btn-primary">Update</button>
+                            <button type="submit" name="btnDelete" class="btn btn-primary">Delete</button>
+                        </div>
+                    </div>
+                </div>
             <?php \app\core\\form\Form::end() ?>
         </div>
     </div>

@@ -8,7 +8,7 @@ class MakeControllerCommand implements CommandInterface {
     public function getDescription(): string {
         return "Generates a new Controller class in app/controllers. 
         \t\tUsage: make:controller <Name>
-        \t\t     : make:controller <controller_name>/<model_name>[/<view_name>] <table_name>";
+        \t\t     : make:controller <controller_name>/<model_name> <table_name>";
     }
 
     public function execute(array $args): int {
@@ -53,18 +53,13 @@ PHP;
     private function generateControllerAndModel(string $name, string $tableName): int {
         $nameParts = explode('/', $name);
         
-        if(count($nameParts) !== 2 || count($nameParts) !== 3) {
+        if(count($nameParts) !== 2) {
             echo "\033[31m[ERROR]\033[0m Invalid format. Usage: php mm make:controller <controller_name>/<model_name> <table_name>\n";
             return 1;
         }else{
             $controllerName = ucfirst($nameParts[0]) . 'Controller';
             $modelName = ucfirst($nameParts[1]);
-            if(count($nameParts) == 3){
-                $viewName = $nameParts[2];
-            }
-            else{
             $viewName = lcfirst($modelName);
-            }
             //$tableName = $args[1] ?? null;
 
             if (!$tableName) {
@@ -93,6 +88,7 @@ PHP;
             $primaryKey = $model->primaryKey;
             $view = new MakeViewCommand();            
             $view->execute([$modelName, $viewName]);
+            $actionName = lcfirst($modelName) . 'Action';
 
             $template = <<<PHP
 <?php
@@ -100,6 +96,8 @@ namespace app\\controllers;
 
 use app\\core\\Controller;
 use app\\models\\{$modelName};
+use app\\core\\Request;
+use app\\core\\Application;
 
 class {$controllerName} extends Controller {
 
@@ -107,49 +105,83 @@ class {$controllerName} extends Controller {
         return \$this->render('home');
     }
 
-    public function createAction() {
+    public function save(Request \$request): ?{$modelName} {
         \$model = new {$modelName}();
         // Handle form submission and save data to the database
-        if(\$this->request->isPost()) {
-            \$model->loadData(\$this->request->getBody());
-            if(\$model->validate() && \$model->save()) {
-                // Redirect or show success message
-                Application::\$app->session->setFlash('success', '{$modelName} Added Successfully');
-            }
+        \$model->loadData(\$request->getBody());
+        if(\$model->validate() && \$model->save()) {
+            // Redirect or show success message
+            Application::\$app->session->setFlash('success', '{$modelName} Added Successfully');
+            //return \$model;
+        }else {
+            // Handle validation errors or other issues
+            Application::\$app->session->setFlash('error', 'Failed to add {$modelName}. Please check the input.');
         }
-        return \$this->render('{$viewName}', ['model' => \$model]);
+
+        return \$model;
     }
 
-    public function update(\$id) {
-        \$model = {$modelName}::findOne(['{$primaryKey}' => \$id]);
-        if(!\$model) {
-            throw new \Exception('Model not found');
+    public function update(Request \$request): ?{$modelName} {
+        \$model = new {$modelName}();       
+        \$model->loadData(\$request->getBody());
+        if(\$model->validate() && \$model->update()) {
+            // Redirect or show success message
+            Application::\$app->session->setFlash('success', '{$modelName} Updated Successfully');
+            //return \$model;
+        }else {
+            // Handle validation errors or other issues
+            Application::\$app->session->setFlash('error', 'Failed to update {$modelName}. Please check the input.');
         }
-        // Handle form submission and update data in the database
-        if(\$this->request->isPost()) {
-            \$model->loadData(\$this->request->getBody());
-            if(\$model->validate() && \$model->save()) {
-                // Redirect or show success message
-                Application::\$app->session->setFlash('success', '{$modelName} Updated Successfully');
-            }
-        }
-        return \$this->render('{$viewName}', ['model' => \$model]);
-    }
+        
+        return \$model;
+      }
 
-    public function delete(\$id) {
-        \$model = {$modelName}::findOne(['{$primaryKey}' => \$id]);
-        if(!\$model) {
-            throw new \Exception('Model not found');
-        }
+    public function delete(Request \$request): ?{$modelName} {
+        \$model = new {$modelName}();
+        \$model->loadData(\$request->getBody());
         // Handle deletion of the model from the database
         if(\$model->delete()) {
             Application::\$app->session->setFlash('success', '{$modelName} Deleted Successfully');
+            //return \$model;
+        }else {
+            Application::\$app->session->setFlash('error', 'Failed to delete {$modelName}.');
         }
+        return \$model;
+    }
+
+    public function {$actionName}(Request \$request){
+        
+        \$id = \$request->getBody()['id'] ?? null;
+        if(\$request->isPost()) {
+            if(isset(\$request->getBody()['btnDelete'])) {
+                \$model = \$this->delete(\$request);
+            } elseif(isset(\$request->getBody()['btnUpdate'])) {
+                \$model = \$this->update(\$request);
+            }elseif(isset(\$request->getBody()['btnSave'])) {
+                \$model = \$this->save(\$request);
+            }else {
+                \$model =  new {$modelName}();
+                \$model->loadData(\$request->getBody());
+            }                
+        } else {
+            if(\$id) {
+                \$model = {$modelName}::findOne([{$modelName}::primaryKey() => \$id]);
+                 if(!\$model) {
+                    \$model = new {$modelName}();
+                }
+                
+            } else {
+                \$model = new {$modelName}();
+            }                       
+        }        
+       
+        return \$this->render('{$viewName}', ['model' => \$model]);
+        
+        
     }
 
 }
-PHP;
-        
+PHP;        
             file_put_contents($filePathController, $template);
             echo "\033[32m[SUCCESS]\033[0m Created controller: app/controllers/{$controllerName}.php\n";
             return 0;
