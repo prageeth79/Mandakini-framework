@@ -15,6 +15,11 @@ use app\core\db\schema\OracleSchemaReflector;
 use app\core\db\schema\OracleTypeCaster;
 use app\core\db\schema\DefaultSchemaReflector;
 use app\core\db\schema\DefaultTypeCaster;
+
+use app\core\db\schema\SqliteSchemaReflector;
+use app\core\db\schema\SqliteTypeCaster;
+
+use app\core\db\schema\SchemaFactory;
 use PDO;
 
 class Database {
@@ -36,7 +41,7 @@ class Database {
         $this->pdo = new PDO($dsn, $user, $password);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $this->resolveDriverStrategies($dsn);
+        $this->resolveDriverStrategies($this->pdo);
     }
 
     /**
@@ -68,7 +73,14 @@ class Database {
         return $this->typeCaster;
     }
 
-    protected function resolveDriverStrategies(string $dsn): void
+    protected function resolveDriverStrategies(PDO $pdo): void
+    {
+        $factory = new SchemaFactory() ;
+        $this->schemaReflector = $factory->createReflector($pdo);
+        $this->typeCaster = $factory->createTypeCaster($pdo);
+    }
+
+    protected function resolveDriverStrategiesV1(string $dsn): void
     {
         // Extract the driver prefix from DSN (e.g., 'pgsql' from 'pgsql:host=...')
         $driverPrefix = strtolower(explode(':', $dsn, 2)[0] ?? '');

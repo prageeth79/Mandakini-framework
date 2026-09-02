@@ -1,11 +1,19 @@
 <?php
 
-namespace app\core\cli;
+namespace app\core\cli\commands;
 
 use app\core\Application;
+use app\core\cli\CommandInterface;
 
 class MakeModelCommand implements CommandInterface
 {
+    public string $classNameArg = '';
+    public string $tableNameArg = '';
+    public array $columns = [];
+    public array $rules = [];
+    public array $labels = [];
+    public string$primaryKey = '';
+
     public function getDescription(): string
     {
         return 'Generate DBModel classes by inspecting database tables (Usage: make:model <table_name|--all>)';
@@ -13,10 +21,12 @@ class MakeModelCommand implements CommandInterface
 
     public function execute(array $args): int
     {
-        $tableArg = $args[0] ?? null;
+        $tableArg = $args[1] ?? null;
+        $this->tableNameArg = $args[1] ?? null;
+        $this->classNameArg = $args[0] ?? null;
 
-        if (!$tableArg) {
-            echo "\033[33mUsage:\033[0m php mandakini make:model <table_name|--all>\n";
+        if (!$this->classNameArg || !$tableArg) {
+            echo "\033[33mUsage:\033[0m php mm make:model <class_name> <table_name|--all>\n";
             return 1;
         }
 
@@ -64,7 +74,8 @@ class MakeModelCommand implements CommandInterface
             return 1;
         }
 
-        $className = $this->tableNameToClassName($tableName);
+        //$className = $this->tableNameToClassName($tableName);
+        $className = $this->classNameArg;
         $outputDir = Application::$ROOT_DIR . '/models';
         $filePath  = "{$outputDir}/{$className}.php";
 
@@ -73,6 +84,8 @@ class MakeModelCommand implements CommandInterface
         }
 
         $propertyDocBlocks = [];
+        $rules = [];
+        $columns = [];
         foreach ($meta['types'] as $column => $dbType) {
             $phpType = match (true) {
                 str_contains($dbType, 'int') => 'int',
@@ -81,8 +94,23 @@ class MakeModelCommand implements CommandInterface
                 str_contains($dbType, 'json') => 'array',
                 default => 'string',
             };
+            $defaultValue = match ($phpType) {
+                'int' => '0',
+                'bool' => 'false',
+                'float' => '0.0',
+                'array' => '[]',
+                default => "''",
+            };
             $propertyDocBlocks[] = " * @property {$phpType} \${$column}";
+            $rules[] = "            '{$column}' => [self::RULE_REQUIRED],"; // Example rule, you can customize this based on your needs
+            $columns[] = "    public {$phpType} \${$column} = {$defaultValue};";
+            $this->columns[] = $column;
+            $this->rules[$column] = ['required']; // Example rule, you can customize this based on your needs   
+            $this->labels[$column] = ucfirst(str_replace('_', ' ', $column)); // Example label, you can customize this based on your needs
+            $this->primaryKey = $meta['primaryKey'] ?? '';
         }
+        $rulesStr = implode("\n", $rules);
+        $columnsStr = implode("\n", $columns);
         $docBlockStr = implode("\n", $propertyDocBlocks);
 
         $code = <<<PHP
@@ -101,20 +129,42 @@ use app\core\db\DBModel;
  */
 class {$className} extends DBModel
 {
+
+{$columnsStr}
+
     public static function tableName(): string
     {
         return '{$tableName}';
     }
 
+     public function rules():array{
+
+        return [
+            // Define validation rules here
+{$rulesStr}
+        ];
+
+    }
+
+    public function labels(): array
+    {
+        \$labels = parent::labels();
+        // Add custom labels for the model's attributes here
+        // Example: \$labels['attribute_name'] = 'Custom Label';
+        return \$labels;
+    }
+
     public function calculate(): bool
     {
+        // Implement any calculations or business logic here
+        // this method is called in DBTable class when displaying the table data in the model.
         return true;
     }
 }
 PHP;
 
         file_put_contents($filePath, $code);
-        echo "\033[32m[INFO]\033[0m Model 'app\\models\\{$className}' created at models/{$className}.php" . PHP_EOL;
+        echo "\033[32m[SUCCESS]\033[0m Model 'app\\models\\{$className}' created at models/{$className}.php" . PHP_EOL;
         return 0;
     }
 

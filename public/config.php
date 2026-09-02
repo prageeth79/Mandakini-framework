@@ -69,7 +69,7 @@ $config = [
      */
     'DEFAULT_APP_NAME' => 'Mandakini Framework 2026',
     'DEFAULT_APP_VERSION' => '0.4.3',
-    'DEFAULT_LAYOUT' => 'mandakini_layout',
+    'DEFAULT_LAYOUT' => 'itdlh_landing_new', // Default layout for views
     
     /**
      * Debug Mode

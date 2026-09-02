@@ -6,7 +6,7 @@ class Console {
     protected array $commands = [];
 
     public function __construct() {
-        $this->autoRegisterCommands();
+        //$this->autoRegisterCommands();
     }
 
     public function register(string $name, CommandInterface $command): void {
@@ -18,9 +18,9 @@ class Console {
         if (!is_dir($commandsDir)) {
             return;
         }
-
+        //printf("\033[32m[INFO]\033[0m Auto-registering commands from directory: %s\n", print_r(scandir($commandsDir), true) );
         foreach (scandir($commandsDir) as $file) {
-            if ($file === '.' || $file === '..' || !str_ends_with($file, '.php')) {
+            if ($file === '.' || $file === '..' || !str_ends_with($file, 'Command.php')) {
                 continue;
             }
 
@@ -33,6 +33,7 @@ class Console {
                 );
                 
                 $this->register(strtolower($commandName), new $className());
+                //echo "\033[32m[INFO]\033[0m Registered command: {$commandName}\n";
             }
         }
     }
@@ -65,7 +66,7 @@ class Console {
 
     protected function showHelp(): void {
         echo "\033[33mMandakini Framework CLI Tool\033[0m\n";
-        echo "Usage: php mandakini <command> [options]\n\n";
+        echo "Usage: php mm <command> [options]\n\n";
         echo "Available Commands:\n";
 
         foreach ($this->commands as $name => $cmd) {

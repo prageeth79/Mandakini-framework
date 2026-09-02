@@ -70,3 +70,9 @@ $app->router->get('/app', [ItdlhController::class, 'app_home']);
 $app->router->get('/report/marks', [\app\controllers\ReportController::class, 'marks']);
 $app->router->get('/report/testPdf', [\app\controllers\ReportController::class, 'testPdf']);
 $app->router->get('/report/courses', [\app\controllers\ReportController::class, 'courses']);
+
+
+$app->router->get('/myCourses', [\app\controllers\MyContController::class, 'myMod']);
+$app->router->get('/myCourses/{id}', [\app\controllers\MyContController::class, 'myMod']);
+$app->router->post('/myCourses', [\app\controllers\MyContController::class, 'myMod']);
+$app->router->post('/myCourses/{id}', [\app\controllers\MyContController::class, 'myMod']);

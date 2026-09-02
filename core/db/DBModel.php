@@ -95,13 +95,22 @@ abstract class DBModel extends Model
 
     public function __get(string $column): mixed
     {
-        // Support direct class properties if declared
+        // A declared typed property may exist on the instance but still be uninitialized.
+        // Reading it directly triggers a fatal error in PHP 8+, so fall back to the
+        // dynamic column data storage when that happens.
         if (property_exists($this, $column)) {
-            return $this->{$column};
+            $property = new \ReflectionProperty($this, $column);
+            if ($property->isInitialized($this)) {
+                return $this->{$column};
+            }
         }
 
-        $this->loadDBColumns();
-        return $this->columnData[$column] ?? null;
+        if (isset(Application::$app) && Application::$app->db) {
+            $this->loadDBColumns();
+            return $this->columnData[$column] ?? null;
+        }
+
+        return null;
     }
 
     public function __set(string $column, mixed $value): void
@@ -109,6 +118,11 @@ abstract class DBModel extends Model
         // Support direct class properties if declared
         if (property_exists($this, $column)) {
             $this->{$column} = $value;
+            return;
+        }
+
+        if (!isset(Application::$app) || !Application::$app->db) {
+            $this->columnData[$column] = $value;
             return;
         }
 
@@ -126,8 +140,14 @@ abstract class DBModel extends Model
     public function __isset(string $column): bool
     {
         if (property_exists($this, $column)) {
-            return isset($this->{$column});
+            $property = new \ReflectionProperty($this, $column);
+            return $property->isInitialized($this);
         }
+
+        if (!isset(Application::$app) || !Application::$app->db) {
+            return false;
+        }
+
         $this->loadDBColumns();
         return isset($this->columnData[$column]);
     }
