@@ -184,6 +184,11 @@ class {$controllerName} extends Controller {
 PHP;        
             file_put_contents($filePathController, $template);
             echo "\033[32m[SUCCESS]\033[0m Created controller: app/controllers/{$controllerName}.php\n";
+            echo "\033[32m[INFO]\033[0m Add the following to your routes file:\n";
+            echo "\$app->router->get('/{$controllerName}', [\app\controllers\{$controllerName}::class, '{$actionName}']);\n";
+            echo "\$app->router->post('/{$controllerName}', [\app\controllers\{$controllerName}::class, '{$actionName}']);\n";
+            echo "\$app->router->get('/{$controllerName}/\{id\}', [\app\controllers\{$controllerName}::class, '{$actionName}']);\n";
+            echo "\$app->router->post('/{$controllerName}/\{id\}', [\app\controllers\{$controllerName}::class, '{$actionName}']);\n";
             return 0;
         }
     }
