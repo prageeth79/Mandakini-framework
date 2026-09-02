@@ -149,6 +149,13 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - the database type is auto matically detected and DBModel use driver to find it and initialize.
   - command line tool is created for crating models and Controllers
   - Sqlite database suupport added
+- 02/09/2025
+  - new command line tool to generate models vies and controllers
+    - for help run 
+        ```bash
+          php mm help
+        ```
+      
 
 ## Training guide
 
