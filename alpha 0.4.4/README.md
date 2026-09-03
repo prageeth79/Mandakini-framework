@@ -158,6 +158,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
     - minor bug fixes on command line tool
 - 03/09/2026 
   - minor bug fixes in command line tool and models
+  - data table added to template of command line tool to show all data
       
 
 ## Training guide
