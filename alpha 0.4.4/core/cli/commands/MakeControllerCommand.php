@@ -101,13 +101,21 @@ use app\\core\\Request;
 use app\\core\\Application;
 use app\\core\\form\\DBTable;
 
+use app\\core\\middlewares\\CsrfMiddleware;
+
 class {$controllerName} extends Controller {
+
+
+    public function __construct() {
+        // Apply CSRF protection to all actions except 'index'
+        \$this->registerMiddleware(new CsrfMiddleware(['index']));
+    }
 
     public function indexAction() {
         return \$this->render('home');
     }
 
-    public function save(Request \$request): ?{$modelName} {
+    public function save{$modelName}(Request \$request): ?{$modelName} {
         \$model = new {$modelName}();
         // Handle form submission and save data to the database
         \$model->loadData(\$request->getBody());
@@ -123,7 +131,7 @@ class {$controllerName} extends Controller {
         return \$model;
     }
 
-    public function update(Request \$request): ?{$modelName} {
+    public function update{$modelName}(Request \$request): ?{$modelName} {
         \$model = new {$modelName}();       
         \$model->loadData(\$request->getBody());
         if(\$model->validate() && \$model->update()) {
@@ -138,7 +146,7 @@ class {$controllerName} extends Controller {
         return \$model;
       }
 
-    public function delete(Request \$request): ?{$modelName} {
+    public function delete{$modelName}(Request \$request): ?{$modelName} {
         \$model = new {$modelName}();
         \$model->loadData(\$request->getBody());
         // Handle deletion of the model from the database
@@ -156,11 +164,11 @@ class {$controllerName} extends Controller {
         \$id = \$request->getBody()['id'] ?? null;
         if(\$request->isPost()) {
             if(isset(\$request->getBody()['btnDelete'])) {
-                \$model = \$this->delete(\$request);
+                \$model = \$this->delete{$modelName}(\$request);
             } elseif(isset(\$request->getBody()['btnUpdate'])) {
-                \$model = \$this->update(\$request);
+                \$model = \$this->update{$modelName}(\$request);
             }elseif(isset(\$request->getBody()['btnSave'])) {
-                \$model = \$this->save(\$request);
+                \$model = \$this->save{$modelName}(\$request);
             }elseif(isset(\$request->getBody()['btnNew'])){
                 \$model =  new {$modelName}();
             }else {

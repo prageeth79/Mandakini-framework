@@ -159,6 +159,9 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
 - 03/09/2026 
   - minor bug fixes in command line tool and models
   - data table added to template of command line tool to show all data
+  - bug fixes to Query Builder
+  - miner changes to command line tool templetes
+  - csrf added to command line tool templates now they are more secure.
       
 
 ## Training guide
