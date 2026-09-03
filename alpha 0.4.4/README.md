@@ -156,6 +156,8 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
           php mm help
         ```
     - minor bug fixes on command line tool
+- 03/09/2026 
+  - minor bug fixes in command line tool and models
       
 
 ## Training guide

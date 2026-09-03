@@ -44,7 +44,7 @@ class MakeViewCommand implements CommandInterface{
     <div class="row">
         <div class="col-12 p-4";>
       
-            <h1>Create/edit an {$modelName}</h1>
+            <h1>Create/edit {$modelName}</h1>
             <?php \$form = \app\core\\form\Form::begin('', 'post') ?>
                 {$fieldsVar}
                 

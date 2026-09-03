@@ -1,5 +1,7 @@
 <?php
 namespace app\core;
+use ReflectionProperty;
+use ReflectionNamedType;
 #[\AllowDynamicProperties]
 abstract class Model {
     public const RULE_REQUIRED = 'required';
@@ -30,12 +32,31 @@ abstract class Model {
         foreach ($data as $key => $value) {
             // DB-backed models may use dynamic column storage instead of declared properties.
             // Assign through the property setter so both native and dynamic fields are hydrated.
-            
-            if (property_exists($this, $key) || method_exists($this, '__set')) {
+            if (property_exists($this, $key)) {
+                $ref = new ReflectionProperty($this::class, $key);
+                $type = $ref->getType();
+                if ($type instanceof ReflectionNamedType) {
+                    $typeName = $type->getName();
+                    if ($typeName === 'int') {
+                        $this->{$key} = (int)$value;
+                    } elseif ($typeName === 'float') {
+                        $this->{$key} = (float)$value;
+                    } elseif ($typeName === 'bool') {
+                        $this->{$key} = (bool)$value;
+                    } elseif ($typeName === 'array') {
+                        $this->{$key} = (array)$value;
+                    } elseif ($typeName === 'string') {
+                        $this->{$key} = (string)$value;
+                    } else {
+                        $this->{$key} = $value;
+                    }
+                } else {
+                    $this->{$key} = $value;
+                }
+            } elseif (method_exists($this, '__set')) {
                 $this->{$key} = $value;
-            }elseif(static::COLUMN_MODEL){
+            } elseif (static::COLUMN_MODEL) {
                 $this->{$key} = $value;
-
             }
         }
     }
@@ -70,8 +91,23 @@ abstract class Model {
                     $ruleName = $rule[0];
                 }
 
-                if ($ruleName === self::RULE_REQUIRED && !$value) {
-                    $this->addErrorForRule($attribute, [self::RULE_REQUIRED]);
+                if ($ruleName === self::RULE_REQUIRED) {
+                    $empty = false;
+                    if ($value === null) {
+                        $empty = true;
+                    } elseif (is_string($value) && trim($value) === '') {
+                        $empty = true;
+                    } elseif (is_array($value) && empty($value)) {
+                        $empty = true;
+                    } elseif (is_bool($value)) {
+                        $empty = ($value === false);
+                    }elseif (is_numeric($value)) {
+                        $empty = ($value == 0);
+                    }
+
+                    if ($empty) {
+                        $this->addErrorForRule($attribute, [self::RULE_REQUIRED]);
+                    }
                 }
 
                 if ($ruleName === self::RULE_EMAIL && !filter_var($value, FILTER_VALIDATE_EMAIL)) {

@@ -103,7 +103,7 @@ class MakeModelCommand implements CommandInterface
             };
             $propertyDocBlocks[] = " * @property {$phpType} \${$column}";
             $rules[] = "            '{$column}' => [self::RULE_REQUIRED],"; // Example rule, you can customize this based on your needs
-            $columns[] = "    public {$phpType} \${$column} = {$defaultValue};";
+            $columns[] = "    public ?{$phpType} \${$column} = {$defaultValue};";
             $this->columns[] = $column;
             $this->rules[$column] = ['required']; // Example rule, you can customize this based on your needs   
             $this->labels[$column] = ucfirst(str_replace('_', ' ', $column)); // Example label, you can customize this based on your needs
@@ -116,9 +116,9 @@ class MakeModelCommand implements CommandInterface
         $code = <<<PHP
 <?php
 
-namespace app\models;
+namespace app\\models;
 
-use app\core\db\DBModel;
+use app\\core\\db\\DBModel;
 
 /**
  * Class {$className}

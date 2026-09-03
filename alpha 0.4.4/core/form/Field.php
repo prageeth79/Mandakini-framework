@@ -38,6 +38,17 @@ class Field extends BaseField {
         return ($this->readOnly)?" readOnly ": "";
     }
 
+    private function getDisplayValue() {
+        if ($this->value !== '') {
+            return $this->value;
+        }
+        $mv = $this->model->{$this->attribute};
+        if ($mv === null) {
+            return '';
+        }
+        return $mv;
+    }
+
     public function __construct(Model $model, string $attribute, string $value = '') {
         $this->model = $model;
         $this->attribute = $attribute;
@@ -59,19 +70,16 @@ class Field extends BaseField {
             $this->attribute,
             $this->model->hasError($this->attribute) ? 'is-invalid' : '',
             $this->addReadOnly(),
-            $this->value ?: $this->model->{$this->attribute},
+            $this->getDisplayValue(),
             $this->model->getFirstError($this->attribute)
         );
         }
         if($this->type === self::TYPE_SELECT) {
             $optionsHtml = '';
-            if($this->value ==''){
-                $this->value = $this->model->{$this->attribute};
-            }
-            
+            $current = $this->getDisplayValue();
             foreach ($this->options as $value => $label) {
-                $selected = $this->value === $value ? ' selected ' : '';
-                
+                $selected = ((string)$current === (string)$value) ? ' selected ' : '';
+
                 $optionsHtml .= sprintf('<option value="%s" %s>%s</option>', $value, $selected, $label);
             }
          
@@ -101,7 +109,7 @@ class Field extends BaseField {
             $this->label,
             $this->type,
             $this->attribute,
-            $this->value ?: $this->model->{$this->attribute},
+            $this->getDisplayValue(),
             $this->model->hasError($this->attribute) ? 'is-invalid' : '',
             $checked,
             $this->addReadOnly(),
@@ -118,7 +126,7 @@ class Field extends BaseField {
             $this->label,
             $this->type,
             $this->attribute,
-            $this->value ?: $this->model->{$this->attribute},
+            $this->getDisplayValue(),
             $this->model->hasError($this->attribute) ? 'is-invalid' : '',
             $this->addReadOnly(),
             $this->model->getFirstError($this->attribute)
@@ -133,7 +141,7 @@ class Field extends BaseField {
             $this->label,
             $this->type,
             $this->attribute,
-            $this->value ?: $this->model->{$this->attribute},
+            $this->getDisplayValue(),
             $this->model->hasError($this->attribute) ? 'is-invalid' : '',
             $this->addReadOnly(),
             $this->model->getFirstError($this->attribute)
