@@ -76,3 +76,9 @@ $app->router->get('/myCourses', [\app\controllers\MyContController::class, 'myMo
 $app->router->get('/myCourses/{id}', [\app\controllers\MyContController::class, 'myMod']);
 $app->router->post('/myCourses', [\app\controllers\MyContController::class, 'myMod']);
 $app->router->post('/myCourses/{id}', [\app\controllers\MyContController::class, 'myMod']);
+
+
+$app->router->get('/myCont/myMod', [\app\controllers\MyContController::class, 'myMod']);
+$app->router->post('/myCont/myMod', [\app\controllers\MyContController::class, 'myMod']);
+$app->router->get('/myCont/myMod/{id}', [\app\controllers\MyContController::class, 'myMod']);
+$app->router->post('/myCont/myMod/{id}', [\app\controllers\MyContController::class, 'myMod']);
