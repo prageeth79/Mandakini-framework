@@ -159,8 +159,6 @@ class {$controllerName} extends Controller {
                 \$model = \$this->update(\$request);
             }elseif(isset(\$request->getBody()['btnSave'])) {
                 \$model = \$this->save(\$request);
-            }elseif(isset(\$request->getBody()['btnNew'])){
-                \$model =  new {$modelName}();
             }else {
                 \$model =  new {$modelName}();
                 \$model->loadData(\$request->getBody());
@@ -194,4 +192,4 @@ PHP;
             return 0;
         }
     }
-} 
+}
