@@ -55,6 +55,7 @@ class MakeViewCommand implements CommandInterface{
                             <button type="submit" name="btnSave" class="btn btn-primary">Save</button>
                             <button type="submit" name="btnUpdate" class="btn btn-primary">Update</button>
                             <button type="submit" name="btnDelete" class="btn btn-primary">Delete</button>
+                            <?php echo \app\core\util\Csrf::field(); ?>
                         </div>
                     </div>
                 </div>

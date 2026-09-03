@@ -18,7 +18,7 @@ class QueryBuilder
     protected array $groups = [];
     protected array $havings = [];
 
-    protected ?string $orderBy = null;
+    protected array $orderBys = [];
     protected ?int $limit = null;
     protected ?int $offset = null;
 
@@ -848,7 +848,7 @@ class QueryBuilder
             $direction = 'ASC';
         }
 
-        $this->orderBy =
+        $this->orderBys[] =
             "{$column} {$direction}";
 
         return $this;
@@ -972,10 +972,10 @@ class QueryBuilder
          * ORDER
          */
 
-        if ($this->orderBy !== null) {
+        if (!empty($this->orderBys)) {
 
             $sql .=
-                " ORDER BY {$this->orderBy}";
+                " ORDER BY " . implode(', ', $this->orderBys);
         }
 
 
