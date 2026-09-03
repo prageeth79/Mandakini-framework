@@ -48,7 +48,7 @@ class MakeViewCommand implements CommandInterface{
             <?php \$form = \app\core\\form\Form::begin('', 'post') ?>
                 {$fieldsVar}
                 
-                <div class="container">
+                <div class="form-group mt-3">
                     <div class="row">
                         <div class="col-md-4">
                             <button type="submit" name="btnNew" class="btn btn-primary">New</button>
@@ -61,6 +61,7 @@ class MakeViewCommand implements CommandInterface{
             <?php \app\core\\form\Form::end() ?>
         </div>
     </div>
+    <?php echo \$dataTable ?>
 </div>
 
 PHP;

@@ -99,6 +99,7 @@ use app\\core\\Controller;
 use app\\models\\{$modelName};
 use app\\core\\Request;
 use app\\core\\Application;
+use app\\core\\form\\DBTable;
 
 class {$controllerName} extends Controller {
 
@@ -176,9 +177,17 @@ class {$controllerName} extends Controller {
             } else {
                 \$model = new {$modelName}();
             }                       
-        }        
+        }
+            
+        \$pageid = \$request->getBody()['page'] ?? 1;
+        \$noOfRecords = 10;
+
+        \$dataTable =new DBTable(\$model, \$pageid, \$noOfRecords);
+         \$dataTable->updateUrl('/public/{$naviUri}/{id}?page=' . \$pageid,
+                                '/public/{$naviUri}/{id}?page=' . \$pageid,
+                                '/public/{$naviUri}/{id}/view?page=' . \$pageid);
        
-        return \$this->render('{$viewName}', ['model' => \$model]);
+        return \$this->render('{$viewName}', ['model' => \$model, 'dataTable' => \$dataTable]);
         
         
     }
@@ -188,10 +197,10 @@ PHP;
             file_put_contents($filePathController, $template);
             echo "\033[32m[SUCCESS]\033[0m Created controller: app/controllers/{$controllerName}.php\n";
             echo "\033[32m[INFO]\033[0m Add the following to your routes file:\n";
-            echo "\$app->router->get('/{$naviUri}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
-            echo "\$app->router->post('/{$naviUri}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
-            echo "\$app->router->get('/{$naviUri}/{id}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
-            echo "\$app->router->post('/{$naviUri}/{id}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
+            echo "\t\$app->router->get('/{$naviUri}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
+            echo "\t\$app->router->post('/{$naviUri}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
+            echo "\t\$app->router->get('/{$naviUri}/{id}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
+            echo "\t\$app->router->post('/{$naviUri}/{id}', [\\app\controllers\\{$controllerName}::class, '{$actionUri}']);\n";
             return 0;
         }
     }
