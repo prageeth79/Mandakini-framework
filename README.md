@@ -110,6 +110,59 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
 - 25/08/2026 - alpha 0.4
   - paremeter urls added now parrameters canbe added as part of url and can sorted them in app acortingly.
   - minor error fixes
+- 28/08/2026 - alpha 0.4.1
+  - model and data table conditions now can have oparations such as >, <, != etc...
+  - new utilites are added
+    - QR code genearator
+    - Barcode generator
+    - Encriptor 
+    - Report generator
+  - utilites are move to util folder
+  - utilites can be accessed by Util class
+  - miner error fix on update
+- 29/08/2026 alpha 0.4.2
+  - reporting tool redone with advance reporting
+  - report pdf support
+  - new advanced querry builder to build your querry
+  - new advance database model
+  - new advance data table
+  - data model and data table connected to query generator
+  - css seperated from data table
+  - new functionality to customize dtabase css
+  - minor bug fixes for css separation
+  - new method for finding the baseUrl() in Application
+- 30/08/2926
+  - advanced reporting system with template support
+- 31/08/2026 - Alpha 0.4.3
+  - New Column models for all databases
+    - MySQL
+    - PostgreSQL
+    - MSSQL Server
+    - Oracle
+  - no need to declare fields now these new classes define them automaticaly.
+  - Globals class has been created and it has getConfig() method
+  - specific database class file are refactors in to their respective folders
+  - minor bug fixes
+- 01/09/2026 - Alpha 0.4.4
+  - csrf validation added
+  - refactor all model classes into implementing an interface and use it on model so only DBModel is the only one now needed.
+  - the database type is auto matically detected and DBModel use driver to find it and initialize.
+  - command line tool is created for crating models and Controllers
+  - Sqlite database suupport added
+- 02/09/2025
+  - new command line tool to generate models vies and controllers
+    - for help run 
+        ```bash
+          php mm help
+        ```
+    - minor bug fixes on command line tool
+- 03/09/2026 
+  - minor bug fixes in command line tool and models
+  - data table added to template of command line tool to show all data
+  - bug fixes to Query Builder
+  - miner changes to command line tool templetes
+  - csrf added to command line tool templates now they are more secure.
+      
 
 ## Training guide
 

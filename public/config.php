@@ -69,7 +69,7 @@ $config = [
      */
     'DEFAULT_APP_NAME' => 'Mandakini Framework 2026',
     'DEFAULT_APP_VERSION' => '0.4.3',
-    'DEFAULT_LAYOUT' => 'itdlh_landing_new', // Default layout for views
+    'DEFAULT_LAYOUT' => 'mandakini_layout',
     
     /**
      * Debug Mode
@@ -77,7 +77,7 @@ $config = [
      * Set to false in production to hide sensitive error information
      */
     'debug' => true,
-    'ENV' => 'development', // Change to 'production' in production environment, 'development' in development environment    
+    'ENV' => 'production', // Change to 'production' in production environment, 'development' in development environment    
     
     /**
      * Database Configuration

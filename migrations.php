@@ -3,15 +3,12 @@ use app\core\Application;
 
 
 require_once __DIR__ . '/vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
 
 $config = [
     'db' => [
-        'dsn' => $_ENV['DB_DSN'] ?? 'mysql:host=localhost;port=3306;dbname=mandakini',
-        'username' => $_ENV['DB_USER'] ?? 'root',
-        'password' => $_ENV['DB_PASSWORD'] ?? ''
+        'dsn' => 'mysql:host=localhost;port=3306;dbname=mandakini',
+        'username' => 'root',
+        'password' => ''
     ]
 ];
 

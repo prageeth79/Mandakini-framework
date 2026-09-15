@@ -4,9 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 use app\core\Application;
-use app\controllers\SiteController;
-use app\controllers\AuthController;
-use app\controllers\ItdlhController;
 
 /*
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
