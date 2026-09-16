@@ -163,7 +163,7 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
   - miner changes to command line tool templetes
   - csrf added to command line tool templates now they are more secure.
   - miner bug fixes in user login model
-- 16/09/2026
+- 16/09/2026 Alpha 0.4.5
   - miner bug fixes
   - old files clearned and removed
   - foringKeys added to model now model can detect foringKeys
