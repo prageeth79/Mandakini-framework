@@ -52,6 +52,11 @@ abstract class DBModel extends Model
         return static::getSchema()['types'] ?? [];
     }
 
+    public function getForeignKeys(): array
+    {
+        return static::getSchema()['foreign_keys'] ?? [];
+    }
+
     /**
      * Fetch schema details using the active database driver's reflector strategy.
      */

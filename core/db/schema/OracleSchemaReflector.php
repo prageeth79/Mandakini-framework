@@ -33,7 +33,47 @@ class OracleSchemaReflector implements SchemaReflectorInterface
             $primaryKey = 'id';
         }
 
-        // 2. Discover columns, data types, and identity generation
+        // 2. Discover Foreign Keys
+        $fkStmt = $pdo->prepare("
+            SELECT 
+                a.column_name AS local_column,
+                c_pk.table_name AS referenced_table,
+                b.column_name AS referenced_column,
+                c.delete_rule AS delete_rule
+            FROM all_cons_columns a
+            JOIN all_constraints c 
+              ON a.constraint_name = c.constraint_name 
+             AND a.owner = c.owner
+            JOIN all_constraints c_pk 
+              ON c.r_constraint_name = c_pk.constraint_name 
+             AND c.r_owner = c_pk.owner
+            JOIN all_cons_columns b 
+              ON c_pk.constraint_name = b.constraint_name 
+             AND c_pk.owner = b.owner 
+             AND a.position = b.position
+            WHERE c.constraint_type = 'R'
+              AND a.table_name = :table_name
+        ");
+
+        $foreignKeys = [];
+        try {
+            $fkStmt->execute(['table_name' => $tableName]);
+            $fks = $fkStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($fks as $fk) {
+                $colName = strtolower($fk['LOCAL_COLUMN']);
+                $foreignKeys[$colName] = [
+                    'referenced_table'  => strtolower($fk['REFERENCED_TABLE']),
+                    'referenced_column' => strtolower($fk['REFERENCED_COLUMN']),
+                    'on_delete'         => $fk['DELETE_RULE'], // NO ACTION, CASCADE, SET NULL
+                    'on_update'         => 'NO ACTION',        // Oracle does not natively support ON UPDATE
+                ];
+            }
+        } catch (\Throwable $e) {
+            $foreignKeys = [];
+        }
+
+        // 3. Discover columns, data types, and identity generation
         $stmt = $pdo->prepare("
             SELECT 
                 column_name,
@@ -64,9 +104,10 @@ class OracleSchemaReflector implements SchemaReflectorInterface
         }
 
         return [
-            'columns' => $names,
-            'primary' => $primaryKey ?? 'id',
-            'types'   => $types,
+            'columns'      => $names,
+            'primary'      => $primaryKey ?? 'id',
+            'types'        => $types,
+            'foreign_keys' => $foreignKeys,
         ];
     }
 }

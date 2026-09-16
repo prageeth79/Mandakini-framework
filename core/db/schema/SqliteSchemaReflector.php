@@ -9,10 +9,28 @@ class SqliteSchemaReflector implements SchemaReflectorInterface {
     public function inspectTable(string $table): array {
         $pdo = Application::$app->db->pdo;
         
-        // SQLite PRAGMA table_info returns: cid, name, type, notnull, dflt_value, pk
-        $stmt = $pdo->prepare("PRAGMA table_info(" . $pdo->quote($table) . ")");
-        $stmt->execute();
-        $cols = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Escape double quotes to safely format identifier inside PRAGMA calls
+        $safeTable = str_replace('"', '""', $table);
+
+        // 1. Fetch Foreign Key Constraints
+        // PRAGMA foreign_key_list returns: id, seq, table, from, to, on_update, on_delete, match
+        $fkStmt = $pdo->query("PRAGMA foreign_key_list(\"{$safeTable}\")");
+        $fks = $fkStmt ? $fkStmt->fetchAll(PDO::FETCH_ASSOC) : [];
+
+        $foreignKeys = [];
+        foreach ($fks as $fk) {
+            $foreignKeys[$fk['from']] = [
+                'referenced_table'  => $fk['table'],
+                'referenced_column' => $fk['to'],
+                'on_update'         => $fk['on_update'],
+                'on_delete'         => $fk['on_delete'],
+            ];
+        }
+
+        // 2. Fetch Columns and Table Info
+        // PRAGMA table_info returns: cid, name, type, notnull, dflt_value, pk
+        $stmt = $pdo->query("PRAGMA table_info(\"{$safeTable}\")");
+        $cols = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
         $names = [];
         $primary = null;
@@ -38,9 +56,10 @@ class SqliteSchemaReflector implements SchemaReflectorInterface {
         }
 
         return [
-            'columns' => $names,
-            'primary' => $primary ?? 'id',
-            'types'   => $types,
+            'columns'      => $names,
+            'primary'      => $primary ?? 'id',
+            'types'        => $types,
+            'foreign_keys' => $foreignKeys,
         ];
     }
 }
