@@ -1,0 +1,78 @@
+/* ITDLH Kelaniya theme */
+:root{
+  /* Brand blue adjusted to deeper, richer tone */
+  --primary:#0066cc;
+  --hero-bg:linear-gradient(135deg, rgba(0,102,204,0.85), rgba(0,74,173,0.85)), url('../images/hero.jpg') center/cover no-repeat;
+}
+body{font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+.hero{
+  color:#fff;
+  background:var(--hero-bg);
+  padding:120px 0;
+}
+.hero-inner{max-width:1100px;margin:0 auto;}
+.main-inner{max-width:1300px;margin:0 auto;padding:40px 15px}
+.hero-content h1{font-size:48px;font-weight:700;margin-bottom:10px}
+.hero-content p.lead{font-size:20px; margin-bottom:20px}
+.card-img-top{height:200px;object-fit:cover}
+.features .card{border:0}
+.about img{max-width:100%}
+footer{background:#111}
+
+/* Use brand primary for Bootstrap primary buttons on this page */
+.btn-primary{
+  background-color:var(--primary) !important;
+  border-color:var(--primary) !important;
+}
+.btn-primary:hover, .btn-primary:focus{
+  background-color: color-mix(in srgb, var(--primary) 80%, black 20%) !important;
+  border-color: color-mix(in srgb, var(--primary) 80%, black 20%) !important;
+}
+
+/* Responsive tweaks */
+@media (max-width:768px){
+  .hero{padding:60px 0}
+  .hero-content h1{font-size:32px}
+}
+
+/* Highlighted fee box for course pages */
+.course-fee{
+  background-color:#fff3cd;
+  color:#856404;
+  border:1px solid #ffeeba;
+  padding:10px 14px;
+  border-radius:6px;
+  display:inline-block;
+  font-weight:600;
+}
+
+/* Badge-style fee for compact display */
+.course-fee-badge{
+  background-color:#dc3545; /* high-contrast red */
+  color:#ffffff; /* white text for contrast */
+  padding:0.65rem 0.9rem;
+  border-radius:0.6rem;
+  font-weight:800;
+  font-size:1.25rem; /* larger */
+  display:inline-block;
+  box-shadow:0 6px 18px rgba(220,53,69,0.18);
+  text-transform:uppercase;
+  letter-spacing:0.02em;
+}
+
+.course-fee-badge:hover{
+  transform:translateY(-2px) scale(1.02);
+  transition:transform 160ms ease;
+}
+
+/* Larger duration (hours) badge */
+.course-duration{
+  font-size:1.15rem;
+  padding:0.45rem 0.65rem;
+  border-radius:0.45rem;
+  font-weight:700;
+}
+
+.custom-file-input::file-selector-button {
+  content: "Upload"; /* ඔබට අවශ්‍ය වචනය මෙතැනට දාන්න */
+}
