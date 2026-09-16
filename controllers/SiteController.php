@@ -392,6 +392,16 @@ class SiteController extends Controller{
         return $this->render('courses', ['course' => $courses[$courseId]]);
     }
 
+    public function loginAction(Request $request) {
+        //$this->setLayout('mandakini_layout');
+        return $this->render('login');
+    }
+
+    public function registerAction(Request $request) {
+        //$this->setLayout('mandakini_layout');
+        return $this->render('register');
+    }
+
    
 }
 
