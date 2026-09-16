@@ -27,7 +27,6 @@ class AuthController extends Controller {
                 return;
             }
         }
-         //$this->setLayout('mandakini_layout');
         return $this->render('login', [
             'model' => $model,
         ]);

@@ -7,12 +7,33 @@ use app\core\db\DbModel;
 
 
 abstract class UserModel extends DbModel {
-    abstract public function getDisplayName(): string;
+    const STATUS_INACTIVE = 0;
+    const STATUS_ACTIVE = 1;
+    const STATUS_DELETED = 2;
 
-    public function save():bool {
-        //$this->password = password_hash($this->password, PASSWORD_DEFAULT);
+    abstract public function getDisplayName(): string;
+    abstract public function calculate():bool;
+
+    public function save(string $passwordField = ""):bool {
+        if($passwordField == "") return false;
+        $this->SavePassword($passwordField);
         return parent::save();
     }
+
+    public function delete(array $where = [], string $statusField = ""): int {
+        if($statusField == "") return -1;
+        $this->$statusField = self::STATUS_DELETED;
+        return parent::update();
+    }
+
+    public function SavePassword(string $passwordField): void{
+        $this->$passwordField = password_hash($this->$passwordField, PASSWORD_DEFAULT);
+    }
+
+    public function deleteRecord(array $where = []): int {
+        return parent::delete($where);
+    }
+
 }
 
 ?>
