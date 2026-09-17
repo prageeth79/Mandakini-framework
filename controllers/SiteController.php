@@ -393,12 +393,12 @@ class SiteController extends Controller{
     }
 
     public function loginAction(Request $request) {
-        //$this->setLayout('mandakini_layout');
+
         return $this->render('login');
     }
 
     public function registerAction(Request $request) {
-        //$this->setLayout('mandakini_layout');
+
         return $this->render('register');
     }
 
