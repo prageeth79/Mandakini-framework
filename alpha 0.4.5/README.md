@@ -166,7 +166,15 @@ A full user manual is available in `USERMANUAL.md` with setup instructions, exam
 - 16/09/2026 Alpha 0.4.5
   - miner bug fixes
   - old files clearned and removed
-  - foringKeys added to model now model can detect foringKeys
+  - forignKeys added to model now model can detect forignKeys
+- 17/09/2026
+  - rule was added to chech the forign key walidations to DBModel.
+  - shell script and batch executable files are added so you can run
+    - mm.bat <argument1> <argument2> in windows
+    - mm.sh <argument1> <argument2> in linux
+    - example
+      - mm.bat make:controller Product
+      - mm.sh make:controller Product
       
 
 ## Training guide
