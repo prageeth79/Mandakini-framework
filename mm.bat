@@ -1,2 +1,2 @@
 @echo off
-php  mm %* 
+php "%~dp0mm" %*
