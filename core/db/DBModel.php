@@ -7,6 +7,7 @@ use app\core\Model;
 
 abstract class DBModel extends Model
 {
+    public const RULE_FOREIGN_KEY = 'foreign_key';
     /*
     |--------------------------------------------------------------------------
     | SCHEMA DISCOVERY & CACHING
@@ -375,4 +376,66 @@ abstract class DBModel extends Model
 
         $query->orderBy($column, $direction);
     }
+
+    public function validate()
+    {
+        $this->errors = [];
+        $this->validate();
+        foreach ($this->rules() as $attribute => $rules) {
+            $value = $this->{$attribute};
+
+            foreach ($rules as $rule) {
+                if (is_string($rule)) {
+                    $ruleName = $rule;
+                    $params = [];
+                } elseif (is_array($rule)) {
+                    $ruleName = $rule[0];
+                    $params = array_slice($rule, 1);
+                } else {
+                    continue;
+                }
+
+                if ($ruleName === self::RULE_FOREIGN_KEY) {
+                    if (!$this->validateForeignKey($attribute, $value, $params)) {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        return empty($this->errors);
+    }
+
+    private function validateForeignKey(string $attribute, mixed $value, array $params): bool
+    {
+        if($this->getSchema()['foreign_keys'][$attribute] ?? false) {
+            $foreignTable = $this->getSchema()['foreign_keys'][$attribute]['table'] ?? null;
+            $foreignColumn = $this->getSchema()['foreign_keys'][$attribute]['column'] ?? null;
+
+            if ($foreignTable && $foreignColumn) {
+                $exists = Application::$app->db->pdo->prepare("SELECT COUNT(*) FROM {$foreignTable} WHERE {$foreignColumn} = :value");
+                $exists->execute(['value' => $value]);
+                if ($exists->fetchColumn() == 0) {
+                    $this->addError($attribute, "The value '{$value}' does not exist in the foreign table '{$foreignTable}'.");
+                    return false;
+                }
+            }elseif(isset($params['table']) && isset($params['column'])) {
+                $foreignTable = $params['table'];
+                $foreignColumn = $params['column'];
+
+                $exists = Application::$app->db->pdo->prepare("SELECT COUNT(*) FROM {$foreignTable} WHERE {$foreignColumn} = :value");
+                $exists->execute(['value' => $value]);
+                if ($exists->fetchColumn() == 0) {
+                    $this->addError($attribute, "The value '{$value}' does not exist in the foreign table '{$foreignTable}'.");
+                    return false;
+                }
+            } else {
+                throw new \InvalidArgumentException("Foreign key validation requires 'table' and 'column' parameters.");
+            }
+        }
+
+        return true;
+    }
+
+   
 }
